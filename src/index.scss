@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./@config/sass/variables";
+
+#App {
+  font-family: "Roboto";
+}
+
+.input-control {
+  height: 45px;
+  border-radius: 10px;
+  background-color: #2b2c3910;
+}
+
+.input-checkbox {
+  width: 20px;
+  height: 20px;
+  background-color: #2b2c3910;
+  position: relative;
+  border: none;
+
+  &::after {
+    content: "";
+    width: 13px;
+    height: 13px;
+    background-color: $text_primary;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+  }
+
+  &.active {
+    &::after {
+      opacity: 1;
+    }
+  }
+}
