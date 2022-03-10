@@ -27,16 +27,12 @@ export default function Input(props: IInput) {
     });
   }, []);
 
-  useEffect(() => {
-    console.log(passwordShow);
-  }, [passwordShow]);
   
   useEffect(() => {
-    if(checkboxChecked) {
-      fakeCheckbox.current?.classList.add("active")
-    }
-    else {
-      fakeCheckbox.current?.classList.remove("active")
+    if (checkboxChecked) {
+      fakeCheckbox.current?.classList.add("active");
+    } else {
+      fakeCheckbox.current?.classList.remove("active");
     }
   }, [checkboxChecked]);
 
@@ -51,7 +47,7 @@ export default function Input(props: IInput) {
         justifyContent: props.type === "checkbox" ? "start" : "",
       }}
     >
-      <label htmlFor={props.id} className="text-sm font-semibold">
+      <label htmlFor={props.id} className={`text-sm font-semibold`}>
         {props.label}
       </label>
       {props.type === "checkbox" ? (
@@ -59,7 +55,7 @@ export default function Input(props: IInput) {
           onClick={toggleCheckbox}
           ref={fakeCheckbox}
           htmlFor={props.id}
-          className="input-checkbox"
+          className={`input-checkbox ${props.labelclass ? `${props.labelclass} ` : ""}`}
         ></label>
       ) : null}
       <input
@@ -69,7 +65,7 @@ export default function Input(props: IInput) {
         name={props.name}
         className={`${props.className ? `${props.className} ` : ""}${
           props.type === "checkbox" ? "hidden" : "input-control"
-        } px-3 text-sm outline-none`}
+        } px-3 text-sm outline-none w-full`}
         {...props}
       />
       {props.type === "password" ? (

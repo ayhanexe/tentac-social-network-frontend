@@ -4,6 +4,12 @@
 
 @import "./@config/sass/variables";
 
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
 #App {
   font-family: "Roboto";
 }

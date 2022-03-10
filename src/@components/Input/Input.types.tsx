@@ -1,1 +1,3 @@
-export default interface IInput extends React.HTMLProps<HTMLInputElement> {}
+export default interface IInput extends React.HTMLProps<HTMLInputElement> {
+    labelclass?: string
+}

@@ -1,6 +1,36 @@
 @import "../../@config/sass/variables";
 
 #authentication-root {
-    background-color:$bg_secondary;
-    color: $text_primary;
+  background-color: $bg_secondary;
+  color: $text_primary;
+  min-height: 100vh;
+}
+
+.message-left {
+  left: 0%;
+  transform: translate(0%);
+}
+.form-left {
+  left: -100%;
+  transform: translate(100%);
+}
+
+.message-right {
+  left: 100%;
+  transform: translate(-100%);
+}
+
+.form-right {
+  left: 0%;
+}
+
+form {
+  height: 100%;
+  @media all and (max-height: 600px) {
+    height: auto;
+  }
+
+  @media all and (max-width: 1000px) {
+    height: auto;
+  }
 }
