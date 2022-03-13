@@ -21,6 +21,8 @@ export default class AuthenticationService implements IAuthenticationService {
             },
             {
               headers: {
+                "Accept-Language": `${navigator.language}`,
+                "culture": `${navigator.language}`,
                 "Content-Type": "application/json",
               },
             }
