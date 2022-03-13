@@ -1,17 +1,165 @@
-import { RefObject, useEffect, useRef, useState } from "react";
+import {
+  BaseSyntheticEvent,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { flattenDeep } from "lodash";
 import Button from "../../@components/Button/Button";
 import Input from "../../@components/Input/Input";
 import { gsap } from "gsap";
 
 import AuthenticationTypes from "./Authentication.types";
+import { AuthenticationService } from "../../@tentac";
 import "./Authentication.scss";
 import ClearStyleAttribute from "../../utils/Utils";
+import {
+  ILoginResponse,
+  IRegisterResponse,
+} from "../../@tentac/services/authentication-service/Authentication.types";
+import AlertService from "../../@tentac/services/alert-service/Alert.service";
 
 export default function Authentication() {
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerUsername, setRegisterUsername] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerPasswordAgain, setRegisterPasswordAgain] = useState("");
+  const [registerName, setRegisterName] = useState("");
+  const [registerSurname, setRegisterSurname] = useState("");
+  const [registerPrivacy, setRegisterPrivacy] = useState<boolean>(false);
+
   const messageAreaRef: RefObject<HTMLDivElement> = useRef(null);
   const formAreaRef: RefObject<HTMLDivElement> = useRef(null);
   const [authenticationType, setAuthenticationType] =
-    useState<AuthenticationTypes>(AuthenticationTypes.LOGIN);
+    useState<AuthenticationTypes>(AuthenticationTypes.REGISTER);
+
+  const handleRegister = async (e: BaseSyntheticEvent) => {
+    e.preventDefault();
+    const authService: AuthenticationService = new AuthenticationService();
+    const alertService: AlertService = new AlertService();
+
+    if (registerPrivacy) {
+      try {
+        authService
+          .Register(
+            registerUsername,
+            registerEmail,
+            registerPassword,
+            registerPasswordAgain,
+            registerName,
+            registerSurname
+          )
+          .then((response: IRegisterResponse) => {
+            if (response.hasError) {
+              if (Object.keys(response.errors).length > 0) {
+                const errorMessage = `${flattenDeep(
+                  Object.values(response.errors)
+                ).join("<br>")}`;
+
+                alertService.Error({
+                  title: "Oops!",
+                  text: `${errorMessage}`,
+                });
+              } else {
+                alertService.Error({
+                  title: "Oops!",
+                  text: `${response.message}`,
+                });
+              }
+            } else {
+              alertService.Success({
+                title: "Yaay!",
+                text: "Your Account created successfully!",
+              });
+            }
+          })
+          .catch((response: IRegisterResponse) => {
+            if (Object.keys(response.errors).length > 0) {
+              const errorMessage = `${flattenDeep(
+                Object.values(response.errors)
+              ).join("<br>")}`;
+
+              alertService.Error({
+                title: "Ooops!",
+                html: `${errorMessage}`,
+              });
+            } else {
+              alertService.Error({
+                title: "Ooops!",
+                text: `${response.message}`,
+              });
+            }
+          });
+      } catch (error: any) {
+        alertService.Error({
+          title: "Ooops!",
+          text: `${error?.message}`,
+        });
+      }
+    } else {
+      alertService.Warning({
+        title: "Please check privacy rules!",
+      });
+    }
+  };
+
+  const handleLogin = async (e: BaseSyntheticEvent) => {
+    e.preventDefault();
+    const authService: AuthenticationService = new AuthenticationService();
+    const alertService: AlertService = new AlertService();
+
+    try {
+      authService
+        .Login(loginEmail, loginPassword)
+        .then((response: ILoginResponse) => {
+          if (Object.values(response.errors).length > 0) {
+            const errorMessage = `${flattenDeep(
+              Object.values(response.errors)
+            ).join("<br>")}`;
+            alertService.Error({
+              title: "Ooops!",
+              html: `${errorMessage}`,
+            });
+          } else {
+            if (response.isAuthenticated) {
+              alertService.Success({
+                title: "Successfully Logged In",
+              });
+            } else {
+              alertService.Error({
+                title: "Ooops!",
+                text: "Unknown Error Occurred!",
+              });
+            }
+          }
+        })
+        .catch((response: ILoginResponse) => {
+          if (Object.values(response.errors).length > 0) {
+            const errorMessage = `${flattenDeep(
+              Object.values(response.errors)
+            ).join("<br>")}`;
+            alertService.Error({
+              title: "Ooops!",
+              html: `${errorMessage}`,
+            });
+          } else {
+            alertService.Error({
+              title: "Ooops!",
+              text: `${response.message}`,
+            });
+          }
+        });
+    } catch (error: any) {
+      alertService.Error({
+        title: "Ooops!",
+        text: `${error?.message}`,
+      });
+    }
+  };
 
   const setLoginPage = (
     timeline: GSAPTimeline,
@@ -37,10 +185,9 @@ export default function Authentication() {
       gsap.set(loginArea, { opacity: 1 });
       messageAreaRef.current?.classList.add("message-right");
       formAreaRef.current?.classList.add("form-left");
-      
-      ClearStyleAttribute(messageAreaRef.current)
-      ClearStyleAttribute(formAreaRef.current)
-      
+
+      ClearStyleAttribute(messageAreaRef.current);
+      ClearStyleAttribute(formAreaRef.current);
     } else {
       gsap.set(loginArea, { opacity: 0 });
       if (logo) {
@@ -61,8 +208,8 @@ export default function Authentication() {
             });
           });
       }
-      timeline.to(registerArea, { opacity: 0 }, "start")
-      timeline.to(loginArea, { opacity: 1 }, "start")
+      timeline.to(registerArea, { opacity: 0 }, "start");
+      timeline.to(loginArea, { opacity: 1 }, "start");
       timeline
         .to(
           messageAreaRef.current,
@@ -126,7 +273,7 @@ export default function Authentication() {
     }
 
     registerArea.classList.remove("hidden");
-    timeline.to(loginArea, { opacity: 0 }, "start")
+    timeline.to(loginArea, { opacity: 0 }, "start");
     timeline.to(registerArea, { opacity: 1 }, "start");
     timeline
       .fromTo(
@@ -242,15 +389,27 @@ export default function Authentication() {
           action="/"
           method="POST"
           id="register-area"
+          onSubmit={handleRegister}
           className="overflow-y-auto flex flex-col w-full justify-center z-10 py-7 px-10 lg:px-24 xl:px-40 gap-5 absolute"
         >
           <h1 className="text-4xl font-black text-center">QEYDİYYAT</h1>
-          <Input id="email" label="Email" placeholder="Email" type="email" />
+          <Input
+            id="email"
+            label="Email"
+            placeholder="Email"
+            type="email"
+            onChange={(e: BaseSyntheticEvent) =>
+              setRegisterEmail(e.target.value)
+            }
+          />
           <Input
             id="username"
             label="Username"
             placeholder="Username"
             type="text"
+            onChange={(e: BaseSyntheticEvent) =>
+              setRegisterUsername(e.target.value)
+            }
           />
 
           <div className="input-twin-group flex-col lg:flex-row  flex gap-5">
@@ -259,25 +418,52 @@ export default function Authentication() {
               label="Şifrə"
               placeholder="Şifrə"
               type="password"
+              onChange={(e: BaseSyntheticEvent) =>
+                setRegisterPassword(e.target.value)
+              }
             />
             <Input
               id="password-again"
               label="Şifrə Təkrar"
               placeholder="Şifrə Təkrar"
               type="password"
+              onChange={(e: BaseSyntheticEvent) =>
+                setRegisterPasswordAgain(e.target.value)
+              }
             />
           </div>
           <div className="input-twin-group flex-col lg:flex-row flex gap-5 w-full">
-            <Input id="name" label="Ad" placeholder="Ad" type="text" />
-            <Input id="surname" label="Soyad" placeholder="Soyad" type="text" />
+            <Input
+              id="name"
+              label="Ad"
+              placeholder="Ad"
+              type="text"
+              onChange={(e: BaseSyntheticEvent) =>
+                setRegisterName(e.target.value)
+              }
+            />
+            <Input
+              id="surname"
+              label="Soyad"
+              placeholder="Soyad"
+              type="text"
+              onChange={(e: BaseSyntheticEvent) =>
+                setRegisterSurname(e.target.value)
+              }
+            />
           </div>
           <Input
             id="privacy"
             labelclass="hover:cursor-pointer"
             label="İstifadə şərtləri ilə razıyam"
             type="checkbox"
+            onChange={(e: BaseSyntheticEvent) =>
+              setRegisterPrivacy(e.target.checked)
+            }
           />
-          <Button type="submit">QEYDİYYATDAN KEÇ</Button>
+          <Button type="submit" onClick={handleRegister}>
+            QEYDİYYATDAN KEÇ
+          </Button>
           <span className="text-xs text-right font-medium">
             Qeydiyyatdan keçmisiniz?{" "}
             <span
@@ -293,6 +479,7 @@ export default function Authentication() {
           method="POST"
           id="login-area"
           className="hidden overflow-y-auto flex justify-center z-10 flex-col w-full h-full py-7 px-10 xl:px-40 gap-5 absolute"
+          onSubmit={handleLogin}
         >
           <h1 className="text-4xl font-black text-center">GİRİŞ</h1>
           <Input
@@ -300,12 +487,16 @@ export default function Authentication() {
             label="Email / İstifadəçi Adı"
             placeholder="Email / İstifadəçi Adı"
             type="text"
+            onChange={(e: BaseSyntheticEvent) => setLoginEmail(e.target.value)}
           />
           <Input
             id="login-password"
             label="Şifrə"
             placeholder="Şifrə"
             type="password"
+            onChange={(e: BaseSyntheticEvent) =>
+              setLoginPassword(e.target.value)
+            }
           />
           <Input
             id="remember-me"
@@ -313,7 +504,9 @@ export default function Authentication() {
             label="Məni yadda saxla"
             type="checkbox"
           />
-          <Button type="submit">GİRİŞ ET</Button>
+          <Button onClick={handleLogin} type="submit">
+            GİRİŞ ET
+          </Button>
           <span className="text-xs text-right font-medium">
             Qeydiyyatdan keçməmisiniz?{" "}
             <span

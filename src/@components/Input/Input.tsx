@@ -1,4 +1,11 @@
-import { RefObject, useEffect, useRef, useState } from "react";
+import {
+  BaseSyntheticEvent,
+  FormEvent,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import IInput from "./Input.types";
 
 export default function Input(props: IInput) {
@@ -22,12 +29,15 @@ export default function Input(props: IInput) {
   };
 
   useEffect(() => {
-    inputRef.current?.addEventListener("change", () => {
-      if (inputRef.current) setCheckboxChecked(inputRef.current.checked);
-    });
+    inputRef.current?.addEventListener(
+      "change",
+      () => {
+        if (inputRef.current) setCheckboxChecked(inputRef.current.checked);
+      },
+      {}
+    );
   }, []);
 
-  
   useEffect(() => {
     if (checkboxChecked) {
       fakeCheckbox.current?.classList.add("active");
@@ -55,7 +65,9 @@ export default function Input(props: IInput) {
           onClick={toggleCheckbox}
           ref={fakeCheckbox}
           htmlFor={props.id}
-          className={`input-checkbox ${props.labelclass ? `${props.labelclass} ` : ""}`}
+          className={`input-checkbox ${
+            props.labelclass ? `${props.labelclass} ` : ""
+          }`}
         ></label>
       ) : null}
       <input
@@ -67,6 +79,7 @@ export default function Input(props: IInput) {
           props.type === "checkbox" ? "hidden" : "input-control"
         } px-3 text-sm outline-none w-full`}
         {...props}
+        onChange={props.onChange}
       />
       {props.type === "password" ? (
         <i
