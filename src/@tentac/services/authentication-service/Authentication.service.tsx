@@ -12,7 +12,8 @@ export default class AuthenticationService implements IAuthenticationService {
         await axios
           .post(
             path.join(
-              `${process.env.REACT_APP_AUTHENTICATION_API_URL}`,
+              `${process.env.REACT_APP_API_BASE}`,
+              "Authentication",
               "Login"
             ),
             {
@@ -22,7 +23,7 @@ export default class AuthenticationService implements IAuthenticationService {
             {
               headers: {
                 "Accept-Language": `${navigator.language}`,
-                "culture": `${navigator.language}`,
+                culture: `${navigator.language}`,
                 "Content-Type": "application/json",
               },
             }
@@ -41,6 +42,7 @@ export default class AuthenticationService implements IAuthenticationService {
           );
       } catch (error: any) {
         resolve({
+          id: null,
           isAuthenticated: false,
           message: `${error.message}`,
           email: "",
@@ -66,7 +68,8 @@ export default class AuthenticationService implements IAuthenticationService {
         await axios
           .post(
             path.join(
-              `${process.env.REACT_APP_AUTHENTICATION_API_URL}`,
+              `${process.env.REACT_APP_API_BASE}`,
+              "Authentication",
               "Register"
             ),
             {

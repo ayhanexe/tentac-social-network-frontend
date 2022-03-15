@@ -19,8 +19,14 @@ import {
   IRegisterResponse,
 } from "../../@tentac/services/authentication-service/Authentication.types";
 import AlertService from "../../@tentac/services/alert-service/Alert.service";
+import { useDispatch } from "react-redux";
+import { addUserInfo } from "../../@tentac/services/authentication-service/state/Authentication.actions";
+import UserService from "../../@tentac/services/user-service/user-service";
+import { IUser } from "../../@tentac/types/auth/authTypes";
 
 export default function Authentication() {
+  const dispatch = useDispatch();
+
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
@@ -126,9 +132,35 @@ export default function Authentication() {
             });
           } else {
             if (response.isAuthenticated) {
-              alertService.Success({
-                title: "Successfully Logged In",
-              });
+              alertService
+                .Success({
+                  title: "Successfully Logged In",
+                })
+                .then(async () => {
+                  const userService: UserService = new UserService();
+
+                  userService
+                    .get(`${response.id}`, {
+                      bearerToken: response.token,
+                    })
+                    .then((user: IUser) => {
+                      dispatch(
+                        addUserInfo({
+                          id: user.id,
+                          emailConfirmed: user.emailConfirmed,
+                          lockoutEnd: user.lockoutEnd,
+                          twoFactorEnabled: user.twoFactorEnabled,
+                          userName: user.userName,
+                          email: user.email,
+                          fullName: user.fullName,
+                          roles: user.roles,
+                          phoneNumber: user.phoneNumber,
+                          phoneNumberConfirmed: user.phoneNumberConfirmed,
+                          accessFailedCount: user.accessFailedCount,
+                        })
+                      );
+                    })
+                });
             } else {
               alertService.Error({
                 title: "Ooops!",
@@ -395,7 +427,7 @@ export default function Authentication() {
           <h1 className="text-4xl font-black text-center">QEYDİYYAT</h1>
           <Input
             id="email"
-            label="Email"
+            label="Email*"
             placeholder="Email"
             type="email"
             onChange={(e: BaseSyntheticEvent) =>
@@ -404,7 +436,7 @@ export default function Authentication() {
           />
           <Input
             id="username"
-            label="Username"
+            label="Username*"
             placeholder="Username"
             type="text"
             onChange={(e: BaseSyntheticEvent) =>
@@ -415,7 +447,7 @@ export default function Authentication() {
           <div className="input-twin-group flex-col lg:flex-row  flex gap-5">
             <Input
               id="password"
-              label="Şifrə"
+              label="Şifrə*"
               placeholder="Şifrə"
               type="password"
               onChange={(e: BaseSyntheticEvent) =>
@@ -424,7 +456,7 @@ export default function Authentication() {
             />
             <Input
               id="password-again"
-              label="Şifrə Təkrar"
+              label="Şifrə Təkrar*"
               placeholder="Şifrə Təkrar"
               type="password"
               onChange={(e: BaseSyntheticEvent) =>

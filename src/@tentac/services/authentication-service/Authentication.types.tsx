@@ -1,11 +1,8 @@
-export enum IUserRole {
-  superuser,
-  admin,
-  moderator,
-  user,
-}
+import { IUserRole } from "../../types/auth/authTypes";
+
 
 export interface ILoginResponse {
+  id:string | null;
   message: string;
   isAuthenticated: boolean;
   username: string;
