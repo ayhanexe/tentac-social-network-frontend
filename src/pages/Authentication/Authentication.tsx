@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { flattenDeep } from "lodash";
+import { flattenDeep, isNumber } from "lodash";
 import Button from "../../@components/Button/Button";
 import Input from "../../@components/Input/Input";
 import { gsap } from "gsap";
@@ -23,8 +23,10 @@ import { useDispatch } from "react-redux";
 import { addUserInfo } from "../../@tentac/services/authentication-service/state/Authentication.actions";
 import UserService from "../../@tentac/services/user-service/user-service";
 import { IUser } from "../../@tentac/types/auth/authTypes";
+import { useSearchParams } from "react-router-dom";
 
 export default function Authentication() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
 
   const [loginEmail, setLoginEmail] = useState("");
@@ -41,7 +43,7 @@ export default function Authentication() {
   const messageAreaRef: RefObject<HTMLDivElement> = useRef(null);
   const formAreaRef: RefObject<HTMLDivElement> = useRef(null);
   const [authenticationType, setAuthenticationType] =
-    useState<AuthenticationTypes>(AuthenticationTypes.REGISTER);
+    useState<AuthenticationTypes>();
 
   const handleRegister = async (e: BaseSyntheticEvent) => {
     e.preventDefault();
@@ -159,7 +161,7 @@ export default function Authentication() {
                           accessFailedCount: user.accessFailedCount,
                         })
                       );
-                    })
+                    });
                 });
             } else {
               alertService.Error({
@@ -360,6 +362,21 @@ export default function Authentication() {
         setLoginPage(timeline, loginArea, registerArea);
     }
   };
+
+  useEffect(() => {
+    const timeline = gsap.timeline();
+    const registerArea = formAreaRef.current?.querySelector("#register-area");
+    const loginArea = formAreaRef.current?.querySelector("#login-area");
+
+    const searchParameter: string | null = searchParams.get("mode");
+
+    if (searchParameter?.toLowerCase() === "login") {
+      if (loginArea && registerArea) {
+        setLoginPage(timeline, loginArea, registerArea, true);
+        setAuthenticationType(AuthenticationTypes.LOGIN);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const timeline = gsap.timeline();
