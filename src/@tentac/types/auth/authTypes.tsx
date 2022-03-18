@@ -17,4 +17,5 @@ export interface IUser {
   lockoutEnd: null;
   accessFailedCount: 0;
   roles: string[];
+  token: string;
 }

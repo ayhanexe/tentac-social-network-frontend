@@ -7,7 +7,7 @@ export interface ILoginResponse {
   isAuthenticated: boolean;
   username: string;
   email: string;
-  roles: IUserRole[];
+  roles: string[];
   token: string;
   errors: [];
 }

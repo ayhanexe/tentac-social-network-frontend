@@ -1,5 +1,6 @@
 import {
   BaseSyntheticEvent,
+  FormEvent,
   RefObject,
   useEffect,
   useRef,
@@ -24,6 +25,7 @@ import { addUserInfo } from "../../@tentac/services/authentication-service/state
 import UserService from "../../@tentac/services/user-service/user-service";
 import { IUser } from "../../@tentac/types/auth/authTypes";
 import { useSearchParams } from "react-router-dom";
+import CookieService from "../../@tentac/services/storage-service/StorageService";
 
 export default function Authentication() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,6 +33,7 @@ export default function Authentication() {
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerUsername, setRegisterUsername] = useState("");
@@ -146,6 +149,7 @@ export default function Authentication() {
                       bearerToken: response.token,
                     })
                     .then((user: IUser) => {
+                      
                       dispatch(
                         addUserInfo({
                           id: user.id,
@@ -155,10 +159,11 @@ export default function Authentication() {
                           userName: user.userName,
                           email: user.email,
                           fullName: user.fullName,
-                          roles: user.roles,
+                          roles: response.roles,
                           phoneNumber: user.phoneNumber,
                           phoneNumberConfirmed: user.phoneNumberConfirmed,
                           accessFailedCount: user.accessFailedCount,
+                          token: response.token,
                         })
                       );
                     });
@@ -364,6 +369,17 @@ export default function Authentication() {
   };
 
   useEffect(() => {
+    
+    const service: CookieService = new CookieService();
+    (async () => {
+      // console.log(await service.GetAllData())
+      await service.SaveData({
+        auth: {
+          email: "example@example.com"
+        }
+      });
+    })()
+    
     const timeline = gsap.timeline();
     const registerArea = formAreaRef.current?.querySelector("#register-area");
     const loginArea = formAreaRef.current?.querySelector("#login-area");
@@ -535,6 +551,7 @@ export default function Authentication() {
             id="email-or-username"
             label="Email / İstifadəçi Adı"
             placeholder="Email / İstifadəçi Adı"
+            defaultValue="admin@tentac.com "
             type="text"
             onChange={(e: BaseSyntheticEvent) => setLoginEmail(e.target.value)}
           />
@@ -542,6 +559,7 @@ export default function Authentication() {
             id="login-password"
             label="Şifrə"
             placeholder="Şifrə"
+            defaultValue="b911-h4rt-owd1 "
             type="password"
             onChange={(e: BaseSyntheticEvent) =>
               setLoginPassword(e.target.value)
@@ -551,6 +569,9 @@ export default function Authentication() {
             id="remember-me"
             labelclass="hover:cursor-pointer"
             label="Məni yadda saxla"
+            onChange={(e: BaseSyntheticEvent) =>
+              setRememberMe(e.target.checked)
+            }
             type="checkbox"
           />
           <Button onClick={handleLogin} type="submit">
