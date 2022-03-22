@@ -1,3 +1,10 @@
+enum AuthenticationTypes {
+  LOGIN,
+  REGISTER,
+}
+
+export default AuthenticationTypes;
+
 export enum IUserRole {
   superuser,
   admin,

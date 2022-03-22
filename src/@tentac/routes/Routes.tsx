@@ -6,7 +6,7 @@ import { AuthenticationPage } from "../../pages";
 import Home from "../../pages/Home/Home";
 
 export default function GeneralRoutes(props: any) {
-  const A = AntiAuthRoute(() => <AuthenticationPage />, {
+  const AuthenticationRoute = AntiAuthRoute(() => <AuthenticationPage />, {
     redirectTo: "/",
   });
   useEffect(() => {}, []);
@@ -15,7 +15,7 @@ export default function GeneralRoutes(props: any) {
     <BrowserRouter>
       <Routes {...props}>
         <Route path="/" element={<Home />}></Route>
-        <Route path="/authentication" element={<A />} />
+        <Route path="/authentication" element={<AuthenticationRoute />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,17 +1,15 @@
 import {
   BaseSyntheticEvent,
-  FormEvent,
   RefObject,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { flattenDeep, isNumber } from "lodash";
+import { flattenDeep } from "lodash";
 import Button from "../../@components/Button/Button";
 import Input from "../../@components/Input/Input";
 import { gsap } from "gsap";
 
-import AuthenticationTypes from "./Authentication.types";
 import { AuthenticationService } from "../../@tentac";
 import "./Authentication.scss";
 import ClearStyleAttribute from "../../utils/Utils";
@@ -23,9 +21,10 @@ import AlertService from "../../@tentac/services/alert-service/Alert.service";
 import { useDispatch } from "react-redux";
 import { addUserInfo } from "../../@tentac/services/authentication-service/state/Authentication.actions";
 import UserService from "../../@tentac/services/user-service/user-service";
-import { IUser } from "../../@tentac/types/auth/authTypes";
+import AuthenticationTypes, { IUser } from "../../@tentac/types/auth/authTypes";
 import { useSearchParams } from "react-router-dom";
 import CookieService from "../../@tentac/services/storage-service/StorageService";
+import StorageService from "../../@tentac/services/storage-service/StorageService";
 
 export default function Authentication() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -149,7 +148,18 @@ export default function Authentication() {
                       bearerToken: response.token,
                     })
                     .then((user: IUser) => {
-                      
+                      const storageService: StorageService =
+                        new StorageService();
+
+                      storageService.SaveData({
+                        auth: {
+                          email: user.email,
+                          fullname: user.fullName,
+                          username: user.userName,
+                          token: response.token,
+                        },
+                      });
+
                       dispatch(
                         addUserInfo({
                           id: user.id,
@@ -369,17 +379,15 @@ export default function Authentication() {
   };
 
   useEffect(() => {
-    
     const service: CookieService = new CookieService();
     (async () => {
-      // console.log(await service.GetAllData())
       await service.SaveData({
         auth: {
-          email: "example@example.com"
-        }
+          email: "example@example.com",
+        },
       });
-    })()
-    
+    })();
+
     const timeline = gsap.timeline();
     const registerArea = formAreaRef.current?.querySelector("#register-area");
     const loginArea = formAreaRef.current?.querySelector("#login-area");

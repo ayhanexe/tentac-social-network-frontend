@@ -1,10 +1,18 @@
+import { merge, unset } from "lodash";
+import { GetPropertyPath } from "../../../utils/Utils";
 import { IStorage, IStorageService } from "./StorageService.types";
 
 export default class StorageService implements IStorageService {
   // ## Utils ##
+  private get storageAccessor(): string {
+    return "tentac-data";
+  }
+
   private get initialData(): IStorage {
     return {
-      auth: {},
+      auth: {
+        fullname: "Aykhan Abdullayev",
+      },
     };
   }
 
@@ -27,7 +35,10 @@ export default class StorageService implements IStorageService {
   private recoverData(): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
-        localStorage.setItem("tentac-data", JSON.stringify(this.initialData));
+        localStorage.setItem(
+          `${this.storageAccessor}`,
+          JSON.stringify(this.initialData)
+        );
 
         if (await this.checkData()) {
           resolve();
@@ -46,10 +57,15 @@ export default class StorageService implements IStorageService {
   private get dataAsJSON(): Promise<IStorage> {
     return new Promise(async (resolve, reject) => {
       try {
-        const data: string | null = localStorage.getItem("tentac-data");
+        const data: string | null = localStorage.getItem(
+          `${this.storageAccessor}`
+        );
 
         if (!data)
-          localStorage.setItem("tentac-data", JSON.stringify(this.initialData));
+          localStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(this.initialData)
+          );
         else {
           try {
             const _parsedData = JSON.parse(data);
@@ -71,6 +87,18 @@ export default class StorageService implements IStorageService {
 
   // ## Utils End ##
 
+  TestData = async (): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.dataAsJSON;
+        resolve();
+      } catch (error) {
+        await this.recoverData();
+        reject(error);
+      }
+    });
+  };
+
   GetAllData = async (): Promise<IStorage> => {
     return await this.dataAsJSON;
   };
@@ -80,8 +108,14 @@ export default class StorageService implements IStorageService {
       try {
         if (await this.checkData()) {
           const data = await this.dataAsJSON;
-          
-          
+          const patchedData = merge({}, data, patch);
+
+          localStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(patchedData)
+          );
+
+          resolve();
         } else {
           await this.recoverData();
           await this.SaveData(patch);
@@ -91,8 +125,21 @@ export default class StorageService implements IStorageService {
       }
     });
 
-  RemoveData = (patch: IStorage): Promise<void> =>
-    new Promise((resolve, reject) => {});
+  RemoveData = (deleteKey: string): Promise<void> =>
+    new Promise(async (resolve, reject) => {
+      try {
+        const storage = await this.dataAsJSON;
+        const path = GetPropertyPath(storage, deleteKey);
+        unset(storage, path);
+        localStorage.setItem(
+          `${this.storageAccessor}`,
+          JSON.stringify(storage)
+        );
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
 
   DestroyData = (): Promise<void> => new Promise((resolve, reject) => {});
 }

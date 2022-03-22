@@ -1,8 +1,9 @@
 export interface IStorageService {
   SaveData: (patch: IStoragePatch) => Promise<void>;
-  RemoveData: (patch: IStoragePatch) => Promise<void>;
+  RemoveData: (deleteKey: string) => Promise<void>;
   GetAllData: () => Promise<IStorage>;
   DestroyData: () => Promise<void>;
+  TestData: () => Promise<void>;
 }
 
 export interface IStorage {
