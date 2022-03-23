@@ -1,8 +1,5 @@
-import { IUserRole } from "../../types/auth/authTypes";
-
-
 export interface ILoginResponse {
-  id:string | null;
+  id: string | null;
   message: string;
   isAuthenticated: boolean;
   username: string;
@@ -28,4 +25,5 @@ export default interface IAuthenticationService {
     name: string,
     surname: string
   ): Promise<IRegisterResponse>;
+  Initialize(): Promise<void>;
 }

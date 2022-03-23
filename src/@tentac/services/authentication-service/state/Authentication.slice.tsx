@@ -1,9 +1,4 @@
-import {
-  ActionReducerMapBuilder,
-  createSlice,
-  PayloadAction,
-  SliceCaseReducers,
-} from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { initialAuthenticationServiceState } from "./Authentication.state";
 import { addUserInfo } from "./Authentication.actions";
 

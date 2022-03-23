@@ -4,8 +4,64 @@ import IAuthenticationService, {
   IRegisterResponse,
 } from "./Authentication.types";
 import path from "path-browserify";
+import StorageService from "../storage-service/StorageService";
+import { addUserInfo } from "./state/Authentication.actions";
+import UserService from "../user-service/user-service";
+import { IUser } from "../../types/auth/authTypes";
+import { store } from "../../redux/store";
+import { pick } from "lodash";
 
 export default class AuthenticationService implements IAuthenticationService {
+  Initialize(): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const storageService: StorageService = new StorageService();
+        const data = await storageService.GetAllData();
+        const sessionData = await storageService.GetAllData(true);
+
+        if (data.auth || sessionData.auth) {
+          const userService: UserService = new UserService();
+          userService
+            .get(``, {
+              bearerToken: `${data.auth?.token ?? sessionData.auth?.token}`,
+            })
+            .then(async (response) => {
+              const search = Object.values(response).filter(
+                (value: IUser) =>
+                  value.email ===
+                  `${data.auth?.email ?? sessionData.auth?.email}`
+              );
+              const localStore = await storageService.GetAllData();
+              const sessionStore = await storageService.GetAllData(true);
+
+              if (search.length === 0) {
+                storageService.DestroyData();
+              } else {
+                store.dispatch(
+                  addUserInfo({
+                    ...pick(search[0], [
+                      "email",
+                      "fullName",
+                      "id",
+                      "userName",
+                      "roles",
+                      "token",
+                    ]),
+                    ...pick(localStore.auth, ["roles", "token"]),
+                    ...pick(sessionStore.auth, ["roles", "token"]),
+                  })
+                );
+              }
+            });
+
+          resolve();
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   async Login(email: string, password: string): Promise<ILoginResponse> {
     return new Promise(async (resolve, reject) => {
       try {

@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { flattenDeep } from "lodash";
+import { flattenDeep, pick } from "lodash";
 import Button from "../../@components/Button/Button";
 import Input from "../../@components/Input/Input";
 import { gsap } from "gsap";
@@ -25,6 +25,7 @@ import AuthenticationTypes, { IUser } from "../../@tentac/types/auth/authTypes";
 import { useSearchParams } from "react-router-dom";
 import CookieService from "../../@tentac/services/storage-service/StorageService";
 import StorageService from "../../@tentac/services/storage-service/StorageService";
+import { IStoragePatch } from "../../@tentac/services/storage-service/StorageService.types";
 
 export default function Authentication() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -147,19 +148,28 @@ export default function Authentication() {
                     .get(`${response.id}`, {
                       bearerToken: response.token,
                     })
-                    .then((user: IUser) => {
+                    .then(async (user: IUser) => {
                       const storageService: StorageService =
                         new StorageService();
 
-                      storageService.SaveData({
-                        auth: {
-                          email: user.email,
-                          fullname: user.fullName,
-                          username: user.userName,
-                          token: response.token,
-                        },
-                      });
-
+                      if (rememberMe) {
+                        storageService.SaveData({
+                          auth: {
+                            ...pick(user, ["userName", "email", "fullName"]),
+                            ...pick(response, ["roles", "token"]),
+                          },
+                        } as IStoragePatch);
+                      } else {
+                        storageService.SaveData(
+                          {
+                            auth: {
+                              ...pick(user, ["userName", "email", "fullName"]),
+                              ...pick(response, ["roles", "token"]),
+                            },
+                          } as IStoragePatch,
+                          true
+                        );
+                      }
                       dispatch(
                         addUserInfo({
                           id: user.id,
@@ -379,15 +389,6 @@ export default function Authentication() {
   };
 
   useEffect(() => {
-    const service: CookieService = new CookieService();
-    (async () => {
-      await service.SaveData({
-        auth: {
-          email: "example@example.com",
-        },
-      });
-    })();
-
     const timeline = gsap.timeline();
     const registerArea = formAreaRef.current?.querySelector("#register-area");
     const loginArea = formAreaRef.current?.querySelector("#login-area");

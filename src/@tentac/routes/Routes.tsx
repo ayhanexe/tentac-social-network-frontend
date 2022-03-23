@@ -1,22 +1,30 @@
-import React from "react";
-import { useEffect } from "react";
+import { memo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AntiAuthRoute from "../../@components/antiAuthorizationRoute/AntiAuthRoute";
+import AuthRoute from "../../@components/authorizationRoute/AuthorizationRoute";
 import { AuthenticationPage } from "../../pages";
 import Home from "../../pages/Home/Home";
 
-export default function GeneralRoutes(props: any) {
-  const AuthenticationRoute = AntiAuthRoute(() => <AuthenticationPage />, {
-    redirectTo: "/",
-  });
-  useEffect(() => {}, []);
+function GeneralRoutes(props: any) {
+  const AuthenticationRoute = memo(
+    AntiAuthRoute(() => <AuthenticationPage />, {
+      redirectTo: "/",
+    })
+  );
+  const HomeRoute = memo(
+    AuthRoute(() => <Home />, {
+      redirectTo: "/authentication?mode=login",
+    })
+  );
 
   return (
     <BrowserRouter>
       <Routes {...props}>
-        <Route path="/" element={<Home />}></Route>
+        <Route path="/" element={<HomeRoute />}></Route>
         <Route path="/authentication" element={<AuthenticationRoute />} />
       </Routes>
     </BrowserRouter>
   );
 }
+
+export default memo(GeneralRoutes);

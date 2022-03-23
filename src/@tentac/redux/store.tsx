@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { authenticationServiceReducer } from "../services/authentication-service";
+import authenticationServiceReducer from "../services/authentication-service/state/Authentication.slice";
 
 export const store = configureStore({
   preloadedState: {

@@ -17,12 +17,12 @@ export interface IUser {
   id: string;
   userName: string;
   email: string;
-  emailConfirmed: false;
-  phoneNumber: null;
-  phoneNumberConfirmed: false;
-  twoFactorEnabled: false;
-  lockoutEnd: null;
-  accessFailedCount: 0;
+  emailConfirmed?: false;
+  phoneNumber?: null;
+  phoneNumberConfirmed?: false;
+  twoFactorEnabled?: false;
+  lockoutEnd?: null;
+  accessFailedCount?: 0;
   roles: string[];
   token: string;
 }

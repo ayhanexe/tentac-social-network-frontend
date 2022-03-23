@@ -1,18 +1,19 @@
 export interface IStorageService {
-  SaveData: (patch: IStoragePatch) => Promise<void>;
-  RemoveData: (deleteKey: string) => Promise<void>;
-  GetAllData: () => Promise<IStorage>;
-  DestroyData: () => Promise<void>;
+  SaveData: (patch: IStoragePatch, isSessionData: boolean) => Promise<void>;
+  RemoveData: (deleteKey: string, fromSession: boolean) => Promise<void>;
+  GetAllData: (getSessionData: boolean) => Promise<IStorage>;
+  DestroyData: (destroyLocal:boolean) => Promise<void>;
   TestData: () => Promise<void>;
 }
 
 export interface IStorage {
   auth?: {
-    email?: string;
-    username?: string;
-    fullname?: string;
-    token?: string;
-  };
+    email: string;
+    username: string;
+    fullname: string;
+    token: string;
+    roles: string[];
+  } | null;
 }
 
 export interface IStoragePatch {
@@ -20,6 +21,7 @@ export interface IStoragePatch {
     email?: string;
     username?: string;
     fullname?: string;
+    roles?: string[];
     token?: string;
   };
 }

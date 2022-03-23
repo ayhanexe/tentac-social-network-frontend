@@ -1,13 +1,17 @@
-import { useEffect } from "react";
-import { Routes } from "./@tentac";
+import { useEffect, useState } from "react";
+import { AuthenticationService, Routes } from "./@tentac";
+import { authenticationService } from "./@tentac/services/authentication-service";
 import StorageService from "./@tentac/services/storage-service/StorageService";
 
 function App() {
-  const storageService = new StorageService();
+  const storageService: StorageService = new StorageService();
+  const authenticationService: authenticationService =
+    new AuthenticationService();
 
   useEffect(() => {
     (async () => {
       await storageService.TestData();
+      await authenticationService.Initialize();
     })();
   }, []);
 

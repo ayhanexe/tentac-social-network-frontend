@@ -1,6 +1,10 @@
 import { merge, unset } from "lodash";
 import { GetPropertyPath } from "../../../utils/Utils";
-import { IStorage, IStorageService } from "./StorageService.types";
+import {
+  IStorage,
+  IStoragePatch,
+  IStorageService,
+} from "./StorageService.types";
 
 export default class StorageService implements IStorageService {
   // ## Utils ##
@@ -10,16 +14,16 @@ export default class StorageService implements IStorageService {
 
   private get initialData(): IStorage {
     return {
-      auth: {
-        fullname: "Aykhan Abdullayev",
-      },
+      auth: null,
     };
   }
 
-  private checkData(): Promise<boolean> {
+  private checkData(checkLocal: boolean = true): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       try {
-        const data: IStorage = await this.dataAsJSON;
+        const data: IStorage = checkLocal
+          ? await this.localDataAsJSON
+          : await this.sessionDataAsJSON;
 
         if (data) {
           resolve(true);
@@ -32,19 +36,26 @@ export default class StorageService implements IStorageService {
     });
   }
 
-  private recoverData(): Promise<void> {
+  private recoverData(recoverSession: boolean = false): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
-        localStorage.setItem(
-          `${this.storageAccessor}`,
-          JSON.stringify(this.initialData)
-        );
+        if (recoverSession) {
+          sessionStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(this.initialData)
+          );
+        } else {
+          localStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(this.initialData)
+          );
+        }
 
-        if (await this.checkData()) {
+        if (await this.checkData(!recoverSession)) {
           resolve();
         } else {
           setTimeout(async () => {
-            await this.recoverData();
+            await this.recoverData(recoverSession);
           }, 1000);
         }
         resolve();
@@ -54,7 +65,7 @@ export default class StorageService implements IStorageService {
     });
   }
 
-  private get dataAsJSON(): Promise<IStorage> {
+  private get localDataAsJSON(): Promise<IStorage> {
     return new Promise(async (resolve, reject) => {
       try {
         const data: string | null = localStorage.getItem(
@@ -76,7 +87,38 @@ export default class StorageService implements IStorageService {
               "background-color:black; color:white;"
             );
             await this.recoverData();
-            return this.dataAsJSON;
+            return this.localDataAsJSON;
+          }
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  private get sessionDataAsJSON(): Promise<IStorage> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data: string | null = sessionStorage.getItem(
+          `${this.storageAccessor}`
+        );
+
+        if (!data)
+          sessionStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(this.initialData)
+          );
+        else {
+          try {
+            const _parsedData = JSON.parse(data);
+            resolve(_parsedData);
+          } catch (error) {
+            console.error(
+              "%cLocal storage data are corrupted!\nRollbacked original state.",
+              "background-color:black; color:white;"
+            );
+            await this.recoverData();
+            return this.sessionDataAsJSON;
           }
         }
       } catch (error) {
@@ -90,7 +132,7 @@ export default class StorageService implements IStorageService {
   TestData = async (): Promise<void> => {
     return new Promise(async (resolve, reject) => {
       try {
-        await this.dataAsJSON;
+        await this.localDataAsJSON;
         resolve();
       } catch (error) {
         await this.recoverData();
@@ -99,47 +141,100 @@ export default class StorageService implements IStorageService {
     });
   };
 
-  GetAllData = async (): Promise<IStorage> => {
-    return await this.dataAsJSON;
+  GetAllData = async (getSessionData: boolean = false): Promise<IStorage> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = getSessionData
+          ? await this.sessionDataAsJSON
+          : await this.localDataAsJSON;
+        resolve(data);
+      } catch (error) {
+        reject(error);
+      }
+    });
   };
 
-  SaveData = (patch: IStorage): Promise<void> =>
+  SaveData = (
+    patch: IStoragePatch,
+    isSessionData: boolean = false
+  ): Promise<void> =>
     new Promise(async (resolve, reject) => {
       try {
-        if (await this.checkData()) {
-          const data = await this.dataAsJSON;
+        if (await this.checkData(!isSessionData)) {
+          const data = isSessionData
+            ? await this.sessionDataAsJSON
+            : await this.localDataAsJSON;
           const patchedData = merge({}, data, patch);
 
-          localStorage.setItem(
-            `${this.storageAccessor}`,
-            JSON.stringify(patchedData)
-          );
+          if (isSessionData) {
+            sessionStorage.setItem(
+              `${this.storageAccessor}`,
+              JSON.stringify(patchedData)
+            );
+          } else {
+            localStorage.setItem(
+              `${this.storageAccessor}`,
+              JSON.stringify(patchedData)
+            );
+          }
 
           resolve();
         } else {
           await this.recoverData();
-          await this.SaveData(patch);
+          await this.SaveData(patch, isSessionData);
         }
       } catch (error) {
         reject(error);
       }
     });
 
-  RemoveData = (deleteKey: string): Promise<void> =>
+  RemoveData = (
+    deleteKey: string,
+    fromSession: boolean = false
+  ): Promise<void> =>
     new Promise(async (resolve, reject) => {
       try {
-        const storage = await this.dataAsJSON;
+        const storage = fromSession
+          ? this.sessionDataAsJSON
+          : await this.localDataAsJSON;
         const path = GetPropertyPath(storage, deleteKey);
         unset(storage, path);
-        localStorage.setItem(
-          `${this.storageAccessor}`,
-          JSON.stringify(storage)
-        );
+
+        if (fromSession) {
+          sessionStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(storage)
+          );
+        } else {
+          localStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(storage)
+          );
+        }
+
         resolve();
       } catch (error) {
         reject(error);
       }
     });
 
-  DestroyData = (): Promise<void> => new Promise((resolve, reject) => {});
+  DestroyData = (destroyLocal: boolean = true): Promise<void> =>
+    new Promise((resolve, reject) => {
+      try {
+        if (destroyLocal) {
+          localStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(this.initialData)
+          );
+        } else {
+          sessionStorage.setItem(
+            `${this.storageAccessor}`,
+            JSON.stringify(this.initialData)
+          );
+        }
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
 }
