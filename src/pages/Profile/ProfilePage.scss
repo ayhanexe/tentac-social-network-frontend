@@ -1,0 +1,26 @@
+main {
+  #wall {
+    height: 350px;
+    background-color: white;
+    box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  #content-area {
+    transform: translateY(-200px);
+
+    #post-area {
+      box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.02);
+      font-size: 0.85em;
+      height: auto;
+
+      #post-textarea {
+        min-height: 50px;
+        max-height: 100px;
+      }
+    }
+
+    #recommendations {
+      height: auto;
+    }
+  }
+}

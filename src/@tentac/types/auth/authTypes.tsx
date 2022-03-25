@@ -13,7 +13,8 @@ export enum IUserRole {
 }
 
 export interface IUser {
-  fullName: string;
+  name: string;
+  surname: string;
   id: string;
   userName: string;
   email: string;
@@ -24,5 +25,7 @@ export interface IUser {
   lockoutEnd?: null;
   accessFailedCount?: 0;
   roles: string[];
+  profilePhotos: object[];
+  userWalls: object[];
   token: string;
 }

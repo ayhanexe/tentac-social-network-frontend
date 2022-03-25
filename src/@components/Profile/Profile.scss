@@ -1,0 +1,18 @@
+.profile-circle {
+  background-color: rgb(255, 232, 188);
+
+  .story-color {
+    &.active {
+      background: -webkit-linear-gradient(
+        90deg,
+        rgba(255, 108, 63, 1) 0%,
+        rgba(255, 73, 220, 1) 48%,
+        rgba(102, 0, 255, 1) 100%
+      );
+    }
+
+    .story-center-color {
+      background-color: rgb(255, 232, 188);
+    }
+  }
+}

@@ -10,8 +10,13 @@
   box-sizing: border-box;
 }
 
+body {
+  background-color: whitesmoke;
+}
+
 #App {
   font-family: "Roboto";
+  color: #212135 !important;
 }
 
 .input-control {

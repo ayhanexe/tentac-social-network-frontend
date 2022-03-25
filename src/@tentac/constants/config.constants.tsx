@@ -1,0 +1,1 @@
+export const defaultPostLength = 1000;

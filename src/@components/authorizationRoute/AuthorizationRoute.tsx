@@ -8,8 +8,9 @@ import { IAuthRoute } from "./AuthorizationRoute.types";
 
 const AuthRoute = (
   WrappedComponent: ComponentType<any>,
-  antiAuthRouteProps: IAuthRoute
+  antiAuthRouteProps?: IAuthRoute
 ) => {
+  let isUnmounted = false;
   const [mount, setMount] = useState<boolean>(false);
   const [redirect, setRedirect] = useState<boolean>(false);
   const state: IAuthenticationServiceState = useSelector(
@@ -19,34 +20,42 @@ const AuthRoute = (
   const storageService: StorageService = new StorageService();
 
   useEffect(() => {
-    if (state.user?.token && mount) {
-      setRedirect(false);
-    }
+    if (!isUnmounted) {
+      if (state.user?.token && mount) {
+        setRedirect(false);
+      }
 
-    if (!state.user?.token) {
-      setRedirect(true);
+      if (!state.user?.token && mount) {
+        setRedirect(true);
+      }
     }
   }, [state]);
 
   useEffect(() => {
-    (async () => {
-      const storage = await storageService.GetAllData();
-      const sessionStorage = await storageService.GetAllData(true);
+    if (!isUnmounted) {
+      (async () => {
+        const storage = await storageService.GetAllData();
+        const sessionStorage = await storageService.GetAllData(true);
 
-      if (!!(storage.auth?.token || sessionStorage.auth?.token)) {
-        setRedirect(false);
-      } else {
-        setRedirect(true);
-      }
-    })();
+        if (!!(storage.auth?.token || sessionStorage.auth?.token)) {
+          setRedirect(false);
+        } else {
+          setRedirect(true);
+        }
+      })();
 
       setMount(true);
+    }
+
+    return () => {
+      isUnmounted = true;
+    };
   }, []);
 
   return (props: any) =>
     redirect ? (
       <Navigate
-        to={antiAuthRouteProps.redirectTo ?? "/authentication?mode=login"}
+        to={antiAuthRouteProps?.redirectTo ?? "/authentication?mode=login"}
       />
     ) : (
       <WrappedComponent {...props} />

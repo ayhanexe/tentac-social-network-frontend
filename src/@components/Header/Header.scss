@@ -1,0 +1,32 @@
+#header {
+  height: 60px;
+  background-color: white;
+  align-items: center;
+
+  #user-area {
+    #profile-container {
+      width: 50px;
+      height: 50px;
+      background-color: rgba(255, 221, 67, 0.5);
+    }
+
+    #profile-dropdown {
+      width: 250px;
+      height: auto;
+      background-color: white;
+      top: 40px;
+      opacity: 0;
+      visibility: hidden;
+
+      .dropdown-item {
+        height: 45px;
+      }
+
+      &.open {
+        visibility: visible;
+        opacity: 1;
+        top:60px;
+      }
+    }
+  }
+}

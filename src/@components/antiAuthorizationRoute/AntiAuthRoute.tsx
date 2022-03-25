@@ -9,8 +9,9 @@ import { IAntiAuthRoute } from "./AntiAuthRoute.types";
 
 const AntiAuthRoute = <P,>(
   WrappedComponent: ComponentType<P>,
-  antiAuthRouteProps: IAntiAuthRoute
+  antiAuthRouteProps?: IAntiAuthRoute
 ) => {
+  let isUnmounted = false;
   const state: IAuthenticationServiceState = useSelector(
     (state: RootState) => state.auth
   );
@@ -18,29 +19,37 @@ const AntiAuthRoute = <P,>(
   const storageService: StorageService = new StorageService();
 
   useEffect(() => {
-    if (state.user?.token) {
-      setRedirect(true);
-    } else {
-      setRedirect(false);
+    if (!isUnmounted) {
+      if (state.user?.token) {
+        setRedirect(true);
+      } else {
+        setRedirect(false);
+      }
     }
   }, [state]);
 
   useEffect(() => {
-    (async () => {
-      const storage = await storageService.GetAllData();
-      const sessionStorage = await storageService.GetAllData(true);
+    if (!isUnmounted) {
+      (async () => {
+        const storage = await storageService.GetAllData();
+        const sessionStorage = await storageService.GetAllData(true);
 
-      if (storage.auth?.token || sessionStorage.auth?.token) {
-        setRedirect(true);
-      } else {
-        storageService.DestroyData();
-      }
-    })();
+        if (storage.auth?.token || sessionStorage.auth?.token) {
+          setRedirect(true);
+        } else {
+          storageService.DestroyData();
+        }
+      })();
+    }
+
+    return () => {
+      isUnmounted = true;
+    };
   }, []);
 
   return (props: P) =>
     redirect ? (
-      <Navigate to={antiAuthRouteProps.redirectTo ?? "/"} />
+      <Navigate to={antiAuthRouteProps?.redirectTo ?? "/"} />
     ) : (
       <WrappedComponent {...props} />
     );

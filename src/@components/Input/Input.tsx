@@ -9,6 +9,7 @@ import {
 import IInput from "./Input.types";
 
 export default function Input(props: IInput) {
+  let isUnmounted = false;
   const inputRef: RefObject<HTMLInputElement> = useRef(null);
   const fakeCheckbox: RefObject<HTMLLabelElement> = useRef(null);
   const [passwordShow, setPasswordShow] = useState(false);
@@ -17,11 +18,13 @@ export default function Input(props: IInput) {
   );
 
   const togglePassword = () => {
-    setPasswordShow(!passwordShow);
-    inputRef.current?.setAttribute(
-      "type",
-      `${passwordShow ? "password" : "text"}`
-    );
+    if (!isUnmounted) {
+      setPasswordShow(!passwordShow);
+      inputRef.current?.setAttribute(
+        "type",
+        `${passwordShow ? "password" : "text"}`
+      );
+    }
   };
 
   const toggleCheckbox = () => {
@@ -29,13 +32,18 @@ export default function Input(props: IInput) {
   };
 
   useEffect(() => {
-    inputRef.current?.addEventListener(
-      "change",
-      () => {
-        if (inputRef.current) setCheckboxChecked(inputRef.current.checked);
-      },
-      {}
-    );
+    if (!isUnmounted) {
+      inputRef.current?.addEventListener(
+        "change",
+        () => {
+          if (inputRef.current) setCheckboxChecked(inputRef.current.checked);
+        },
+        {}
+      );
+    }
+    return () => {
+      isUnmounted = true;
+    };
   }, []);
 
   useEffect(() => {

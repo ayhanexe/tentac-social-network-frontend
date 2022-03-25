@@ -28,6 +28,7 @@ import StorageService from "../../@tentac/services/storage-service/StorageServic
 import { IStoragePatch } from "../../@tentac/services/storage-service/StorageService.types";
 
 export default function Authentication() {
+  let isUnmounted = false;
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
 
@@ -82,10 +83,21 @@ export default function Authentication() {
                 });
               }
             } else {
-              alertService.Success({
-                title: "Yaay!",
-                text: "Your Account created successfully!",
-              });
+              alertService
+                .Success({
+                  title: "Yaay!",
+                  text: "Your Account created successfully!",
+                })
+                .then(() => {
+                  const registerArea =
+                    formAreaRef.current?.querySelector("#register-area");
+                  const loginArea =
+                    formAreaRef.current?.querySelector("#login-area");
+                  if (registerArea && loginArea) {
+                    setAuthenticationType(AuthenticationTypes.LOGIN);
+                    setRegisterPage(gsap.timeline(), registerArea, loginArea);
+                  }
+                });
             }
           })
           .catch((response: IRegisterResponse) => {
@@ -178,12 +190,15 @@ export default function Authentication() {
                           twoFactorEnabled: user.twoFactorEnabled,
                           userName: user.userName,
                           email: user.email,
-                          fullName: user.fullName,
+                          name: user.name,
+                          surname: user.surname,
                           roles: response.roles,
                           phoneNumber: user.phoneNumber,
                           phoneNumberConfirmed: user.phoneNumberConfirmed,
                           accessFailedCount: user.accessFailedCount,
                           token: response.token,
+                          profilePhotos: user.profilePhotos,
+                          userWalls: user.userWalls,
                         })
                       );
                     });
@@ -389,30 +404,38 @@ export default function Authentication() {
   };
 
   useEffect(() => {
-    const timeline = gsap.timeline();
-    const registerArea = formAreaRef.current?.querySelector("#register-area");
-    const loginArea = formAreaRef.current?.querySelector("#login-area");
+    if (!isUnmounted) {
+      const timeline = gsap.timeline();
+      const registerArea = formAreaRef.current?.querySelector("#register-area");
+      const loginArea = formAreaRef.current?.querySelector("#login-area");
 
-    const searchParameter: string | null = searchParams.get("mode");
+      const searchParameter: string | null = searchParams.get("mode");
 
-    if (searchParameter?.toLowerCase() === "login") {
-      if (loginArea && registerArea) {
-        setLoginPage(timeline, loginArea, registerArea, true);
-        setAuthenticationType(AuthenticationTypes.LOGIN);
+      if (searchParameter?.toLowerCase() === "login") {
+        if (loginArea && registerArea) {
+          setLoginPage(timeline, loginArea, registerArea, true);
+          setAuthenticationType(AuthenticationTypes.LOGIN);
+        }
       }
     }
+
+    return () => {
+      isUnmounted = true;
+    };
   }, []);
 
   useEffect(() => {
-    const timeline = gsap.timeline();
-    timeline.add("start");
+    if (!isUnmounted) {
+      const timeline = gsap.timeline();
+      timeline.add("start");
 
-    const registerArea = formAreaRef.current?.querySelector("#register-area");
-    const loginArea = formAreaRef.current?.querySelector("#login-area");
+      const registerArea = formAreaRef.current?.querySelector("#register-area");
+      const loginArea = formAreaRef.current?.querySelector("#login-area");
 
-    if (authenticationType === AuthenticationTypes.LOGIN) {
-      if (loginArea && registerArea)
-        setLoginPage(timeline, loginArea, registerArea, true);
+      if (authenticationType === AuthenticationTypes.LOGIN) {
+        if (loginArea && registerArea)
+          setLoginPage(timeline, loginArea, registerArea, true);
+      }
     }
   }, []);
 

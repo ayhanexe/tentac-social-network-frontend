@@ -41,11 +41,14 @@ export default class AuthenticationService implements IAuthenticationService {
                   addUserInfo({
                     ...pick(search[0], [
                       "email",
-                      "fullName",
+                      "name",
+                      "surname",
                       "id",
                       "userName",
                       "roles",
                       "token",
+                      "profilePhotos",
+                      "userWalls",
                     ]),
                     ...pick(localStore.auth, ["roles", "token"]),
                     ...pick(sessionStore.auth, ["roles", "token"]),
@@ -133,7 +136,8 @@ export default class AuthenticationService implements IAuthenticationService {
               Username: username,
               Password: password,
               PasswordAgain: passwordAgain,
-              FullName: `${name} ${surname}`,
+              Name: name,
+              Surname: surname,
             },
             {
               headers: {

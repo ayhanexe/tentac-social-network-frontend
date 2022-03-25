@@ -1,3 +1,3 @@
 export interface IAuthRoute {
-  redirectTo: string;
+  redirectTo?: string;
 }

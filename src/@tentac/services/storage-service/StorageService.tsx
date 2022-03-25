@@ -211,7 +211,6 @@ export default class StorageService implements IStorageService {
             JSON.stringify(storage)
           );
         }
-
         resolve();
       } catch (error) {
         reject(error);
