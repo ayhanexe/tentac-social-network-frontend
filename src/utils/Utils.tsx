@@ -38,6 +38,14 @@ export function getCurrentUser(): Promise<IUser | null> {
           })) ?? null;
       }
 
+      user = {
+        ...user,
+        letters:
+          user?.name && user?.surname
+            ? `${user.name[0]} ${user.surname[0]}`
+            : null,
+      } as IUser;
+
       resolve(user);
     } catch (error) {
       reject(error);
@@ -105,4 +113,15 @@ export function getUserWallPhoto(user: IUser): Promise<string> {
       reject(error);
     }
   });
+}
+
+export function generateColor(
+  returnRgba: boolean = false,
+  maxOpacity: number = 1
+) {
+  return `rgb${returnRgba ? "a" : ""}(${Math.random() * 255},${
+    Math.random() * 255
+  },${Math.random() * 255}${
+    returnRgba ? `,${Math.random() * maxOpacity}` : ""
+  })`;
 }

@@ -28,4 +28,5 @@ export interface IUser {
   profilePhotos: object[];
   userWalls: object[];
   token: string;
+  letters?: string;
 }

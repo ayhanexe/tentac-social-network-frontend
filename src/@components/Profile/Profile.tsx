@@ -1,5 +1,5 @@
 import { profile } from "console";
-import React, { ForwardedRef } from "react";
+import React, { ForwardedRef, useEffect } from "react";
 import { HTMLProps } from "react";
 import "./Profile.scss";
 
@@ -24,6 +24,7 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
       ...rest
     } = props;
 
+
     return (
       <div
         {...rest}
@@ -39,7 +40,11 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
           flex: `0 0 ${props.radius}`,
         }}
       >
-        <div className={`${hasStory ? "active" : ""} story-color rounded-full w-full h-full absolute top-0 left-0 shadow-md flex items-center justify-center`}>
+        <div
+          className={`${
+            hasStory ? "active" : ""
+          } story-color rounded-full w-full h-full absolute top-0 left-0 shadow-md flex items-center justify-center`}
+        >
           <div
             className="story-center-color rounded-full flex items-center justify-center"
             style={{

@@ -93,7 +93,7 @@ export default function Authentication() {
                     formAreaRef.current?.querySelector("#register-area");
                   const loginArea =
                     formAreaRef.current?.querySelector("#login-area");
-                  if (registerArea && loginArea) {
+                  if (registerArea && loginArea && !isUnmounted) {
                     setAuthenticationType(AuthenticationTypes.LOGIN);
                     setRegisterPage(gsap.timeline(), registerArea, loginArea);
                   }
@@ -386,20 +386,22 @@ export default function Authentication() {
   };
 
   const changeAuthenticationMode = () => {
-    const timeline = gsap.timeline();
-    timeline.add("start");
+    if (!isUnmounted) {
+      const timeline = gsap.timeline();
+      timeline.add("start");
 
-    const registerArea = formAreaRef.current?.querySelector("#register-area");
-    const loginArea = formAreaRef.current?.querySelector("#login-area");
+      const registerArea = formAreaRef.current?.querySelector("#register-area");
+      const loginArea = formAreaRef.current?.querySelector("#login-area");
 
-    if (authenticationType === AuthenticationTypes.LOGIN) {
-      setAuthenticationType(AuthenticationTypes.REGISTER);
-      if (loginArea && registerArea)
-        setRegisterPage(timeline, loginArea, registerArea);
-    } else {
-      setAuthenticationType(AuthenticationTypes.LOGIN);
-      if (loginArea && registerArea)
-        setLoginPage(timeline, loginArea, registerArea);
+      if (authenticationType === AuthenticationTypes.LOGIN) {
+        setAuthenticationType(AuthenticationTypes.REGISTER);
+        if (loginArea && registerArea)
+          setRegisterPage(timeline, loginArea, registerArea);
+      } else {
+        setAuthenticationType(AuthenticationTypes.LOGIN);
+        if (loginArea && registerArea)
+          setLoginPage(timeline, loginArea, registerArea);
+      }
     }
   };
 
@@ -438,7 +440,6 @@ export default function Authentication() {
       }
     }
   }, []);
-
   return (
     <div
       id="authentication-root"
@@ -496,7 +497,7 @@ export default function Authentication() {
             placeholder="Email"
             type="email"
             onChange={(e: BaseSyntheticEvent) =>
-              setRegisterEmail(e.target.value)
+              !isUnmounted ? setRegisterEmail(e.target.value) : null
             }
           />
           <Input
@@ -505,7 +506,7 @@ export default function Authentication() {
             placeholder="Username"
             type="text"
             onChange={(e: BaseSyntheticEvent) =>
-              setRegisterUsername(e.target.value)
+              !isUnmounted ? setRegisterUsername(e.target.value) : null
             }
           />
 
@@ -516,7 +517,7 @@ export default function Authentication() {
               placeholder="Şifrə"
               type="password"
               onChange={(e: BaseSyntheticEvent) =>
-                setRegisterPassword(e.target.value)
+                !isUnmounted ? setRegisterPassword(e.target.value) : null
               }
             />
             <Input
@@ -525,7 +526,7 @@ export default function Authentication() {
               placeholder="Şifrə Təkrar"
               type="password"
               onChange={(e: BaseSyntheticEvent) =>
-                setRegisterPasswordAgain(e.target.value)
+                !isUnmounted ? setRegisterPasswordAgain(e.target.value) : null
               }
             />
           </div>
@@ -536,7 +537,7 @@ export default function Authentication() {
               placeholder="Ad"
               type="text"
               onChange={(e: BaseSyntheticEvent) =>
-                setRegisterName(e.target.value)
+                !isUnmounted ? setRegisterName(e.target.value) : null
               }
             />
             <Input
@@ -545,7 +546,7 @@ export default function Authentication() {
               placeholder="Soyad"
               type="text"
               onChange={(e: BaseSyntheticEvent) =>
-                setRegisterSurname(e.target.value)
+                !isUnmounted ? setRegisterSurname(e.target.value) : null
               }
             />
           </div>
@@ -555,7 +556,7 @@ export default function Authentication() {
             label="İstifadə şərtləri ilə razıyam"
             type="checkbox"
             onChange={(e: BaseSyntheticEvent) =>
-              setRegisterPrivacy(e.target.checked)
+              !isUnmounted ? setRegisterPrivacy(e.target.checked) : null
             }
           />
           <Button type="submit" onClick={handleRegister}>
@@ -585,7 +586,9 @@ export default function Authentication() {
             placeholder="Email / İstifadəçi Adı"
             defaultValue="admin@tentac.com "
             type="text"
-            onChange={(e: BaseSyntheticEvent) => setLoginEmail(e.target.value)}
+            onChange={(e: BaseSyntheticEvent) =>
+              !isUnmounted ? setLoginEmail(e.target.value) : null
+            }
           />
           <Input
             id="login-password"
@@ -594,7 +597,7 @@ export default function Authentication() {
             defaultValue="b911-h4rt-owd1 "
             type="password"
             onChange={(e: BaseSyntheticEvent) =>
-              setLoginPassword(e.target.value)
+              !isUnmounted ? setLoginPassword(e.target.value) : null
             }
           />
           <Input
@@ -602,7 +605,7 @@ export default function Authentication() {
             labelclass="hover:cursor-pointer"
             label="Məni yadda saxla"
             onChange={(e: BaseSyntheticEvent) =>
-              setRememberMe(e.target.checked)
+              !isUnmounted ? setRememberMe(e.target.checked) : null
             }
             type="checkbox"
           />

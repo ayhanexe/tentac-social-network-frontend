@@ -7,35 +7,44 @@ import { getCurrentUser, getUserProfilePhoto } from "../../utils/Utils";
 import Profile from "../Profile/Profile";
 
 export default function Header() {
+  let unmounted = false;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const [dropdownState, setDropdownState] = useState<boolean>(false);
   const [user, setUser] = useState<IUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
 
-  const handleDropdownToggle = () => setDropdownState(!dropdownState);
+  const handleDropdownToggle = () =>
+    !unmounted ? setDropdownState(!dropdownState) : null;
 
   useEffect(() => {
-    document.addEventListener("click", (e: Event) => {
-      if (
-        dropdownRef.current &&
-        profileRef.current &&
-        !e.composedPath().includes(dropdownRef.current) &&
-        !e.composedPath().includes(profileRef.current)
-      ) {
-        setDropdownState(false);
-      }
-    });
+    if (!unmounted) {
+      document.addEventListener("click", (e: Event) => {
+        if (
+          dropdownRef.current &&
+          profileRef.current &&
+          !e.composedPath().includes(dropdownRef.current) &&
+          !e.composedPath().includes(profileRef.current) &&
+          !unmounted
+        ) {
+          setDropdownState(false);
+        }
+      });
 
-    (async () => {
-      const _user = await getCurrentUser();
-      if (_user) {
-        setUser(_user);
+      (async () => {
+        const _user = await getCurrentUser();
+        if (_user) {
+          if (!unmounted) setUser(_user);
 
-        const profilePhoto = await getUserProfilePhoto(_user).catch(() => {});
-        if (profilePhoto) setProfilePhoto(profilePhoto);
-      }
-    })();
+          const profilePhoto = await getUserProfilePhoto(_user).catch(() => {});
+          if (profilePhoto && !unmounted) setProfilePhoto(profilePhoto);
+        }
+      })();
+    }
+
+    return () => {
+      unmounted = true;
+    };
   }, []);
 
   return (
@@ -63,7 +72,7 @@ export default function Header() {
         <Profile
           ref={profileRef}
           imageUrl={profilePhoto ?? null}
-          letters={`${user?.name[0] ?? ""}${user?.surname[0] ?? ""}`}
+          letters={user?.letters}
           radius="50px"
           onClick={handleDropdownToggle}
           circleClass="cursor-pointer"
