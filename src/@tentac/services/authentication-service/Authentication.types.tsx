@@ -1,3 +1,5 @@
+import { Dispatch } from "redux";
+
 export interface ILoginResponse {
   id: string | null;
   message: string;
@@ -25,5 +27,5 @@ export default interface IAuthenticationService {
     name: string,
     surname: string
   ): Promise<IRegisterResponse>;
-  Initialize(): Promise<void>;
+  Initialize(dispatch: Dispatch<any>): Promise<void>;
 }

@@ -76,6 +76,7 @@ export default function Header() {
           radius="50px"
           onClick={handleDropdownToggle}
           circleClass="cursor-pointer"
+          defaultIconClass="text-xl"
         />
 
         <div

@@ -81,6 +81,7 @@ export default function ProfilePage() {
           letters={letters}
           circleClass="-translate-y-1/4 ml-10 shadow-lg z-10"
           textClass="text-6xl"
+          defaultIconClass="text-6xl"
           hasStory={true}
         />
         <div id="content-area" className="w-full">
@@ -109,6 +110,7 @@ export default function ProfilePage() {
                     letters={letters}
                     hasStory={true}
                     storyBorderWidth="6px"
+                    defaultIconClass="text-2xl"
                   />
                   <div className="flex flex-col w-full items-end">
                     <textarea

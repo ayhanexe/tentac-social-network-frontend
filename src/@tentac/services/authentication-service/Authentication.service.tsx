@@ -10,15 +10,16 @@ import UserService from "../user-service/user-service";
 import { IUser } from "../../types/auth/authTypes";
 import { store } from "../../redux/store";
 import { pick } from "lodash";
+import { Dispatch } from "redux";
 
 export default class AuthenticationService implements IAuthenticationService {
-  Initialize(): Promise<void> {
+  Initialize(dispatch:Dispatch<any>): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
         const storageService: StorageService = new StorageService();
         const data = await storageService.GetAllData();
         const sessionData = await storageService.GetAllData(true);
-
+        console.log(data);
         if (data.auth || sessionData.auth) {
           const userService: UserService = new UserService();
           userService
@@ -37,7 +38,7 @@ export default class AuthenticationService implements IAuthenticationService {
               if (search.length === 0) {
                 storageService.DestroyData();
               } else {
-                store.dispatch(
+                dispatch(
                   addUserInfo({
                     ...pick(search[0], [
                       "email",

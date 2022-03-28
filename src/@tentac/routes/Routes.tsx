@@ -6,6 +6,7 @@ import { AuthenticationPage } from "../../pages";
 import Home from "../../pages/Home/Home";
 import Logout from "../../pages/Logout/Logout";
 import ProfilePage from "../../pages/Profile/ProfilePage";
+import SettingsPage from "../../pages/Settings/SettingsPage";
 
 function GeneralRoutes(props: any) {
   const AuthenticationRoute = memo(
@@ -22,6 +23,8 @@ function GeneralRoutes(props: any) {
 
   const ProfileRoute = memo(AuthRoute(() => <ProfilePage></ProfilePage>));
 
+  const SettingsRoute = memo(AuthRoute(() => <SettingsPage />));
+
   return (
     <BrowserRouter>
       <Routes {...props}>
@@ -29,6 +32,7 @@ function GeneralRoutes(props: any) {
         <Route path="/authentication" element={<AuthenticationRoute />} />
         <Route path="/profile" element={<ProfileRoute />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/settings" element={<SettingsRoute />} />
       </Routes>
     </BrowserRouter>
   );

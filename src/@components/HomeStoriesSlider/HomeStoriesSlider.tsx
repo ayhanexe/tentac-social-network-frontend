@@ -23,7 +23,7 @@ function HomeStoriesSlider() {
         randomColor: generateColor(true, 0.5),
       },
       {
-        id: 1,
+        id: 2,
         imageUrl:
           "https://i.pinimg.com/originals/63/84/d7/6384d7e625f9650ca4fc49b98882229a.jpg",
         randomColor: generateColor(true, 0.5),

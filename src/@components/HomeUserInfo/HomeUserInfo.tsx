@@ -28,6 +28,10 @@ export default function HomeUserInfo() {
       unmounted = true;
     };
   }, []);
+  
+  useEffect(() => {
+    console.log(profileImage)
+  }, [profileImage])
 
   return (
     <div
@@ -42,6 +46,7 @@ export default function HomeUserInfo() {
           radius="70px"
           letters={user?.letters}
           imageUrl={profileImage}
+          defaultIconClass="text-3xl"
         />
         <div className="flex flex-col">
           <h5 className="text-lg font-medium">
@@ -79,7 +84,7 @@ export default function HomeUserInfo() {
       </Link>
       <Link
         className="gap-2 home-user-info-item w-full flex items-center py-2 px-3 rounded-md font-medium text-md transition-colors ease-in-out duration-300 hover:bg-slate-100/70"
-        to="/"
+        to="/settings"
       >
         <i className="bi bi-sliders"></i>
         Settings

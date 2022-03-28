@@ -29,4 +29,7 @@ export interface IUser {
   userWalls: object[];
   token: string;
   letters?: string;
+  birthDate?: string | Date | null;
+  gender?: number;
+  tel?: string | null;
 }

@@ -9,6 +9,7 @@ interface IProfile extends HTMLProps<HTMLDivElement> {
   letters?: string | null;
   circleClass?: string | null;
   textClass?: string | null;
+  defaultIconClass?: string | null;
   hasStory?: boolean;
   storyBorderWidth?: string | null;
 }
@@ -21,9 +22,9 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
       textClass,
       circleClass,
       imageUrl,
+      defaultIconClass,
       ...rest
     } = props;
-
 
     return (
       <div
@@ -74,7 +75,9 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
                 {props.letters}
               </h5>
             ) : (
-              <></>
+              <i
+                className={`bi bi-person-fill ${defaultIconClass}`}
+              ></i>
             )}
           </div>
         </div>
