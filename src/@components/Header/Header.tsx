@@ -95,6 +95,13 @@ export default function Header() {
           </Link>
           <Link
             className="w-full gap-3 dropdown-item flex items-center px-5 text-md font-medium hover:bg-black/5 transition-all ease-in-out duration-300"
+            to="/settings"
+          >
+            <i className="bi bi-gear-wide-connected"></i>
+            Settings
+          </Link>
+          <Link
+            className="w-full gap-3 dropdown-item flex items-center px-5 text-md font-medium hover:bg-black/5 transition-all ease-in-out duration-300"
             to="/logout"
           >
             <i className="bi bi-box-arrow-right"></i>

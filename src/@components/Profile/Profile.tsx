@@ -68,7 +68,7 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
               />
             ) : props.letters ? (
               <h5
-                className={`uppercase antialiased text-lg font-medium ${
+                className={`uppercase antialiased text-lg text-center font-medium ${
                   textClass ?? ""
                 }`}
               >
