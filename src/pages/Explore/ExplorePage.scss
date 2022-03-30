@@ -1,0 +1,12 @@
+.profiles-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, auto));
+  justify-content: space-between;
+  row-gap:10px;
+  column-gap:10px;
+
+  .profile-item {
+    width: 200px;
+    height: 300px;
+  }
+}
