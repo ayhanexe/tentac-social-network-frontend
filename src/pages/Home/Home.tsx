@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../@components/Header/Header";
 import HomeStoriesSlider from "../../@components/HomeStoriesSlider/HomeStoriesSlider";
 import HomeUserInfo from "../../@components/HomeUserInfo/HomeUserInfo";
-import { IUser } from "../../@tentac/types/auth/authTypes";
+import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import {
   getCurrentUser,
   getUserProfilePhoto,
@@ -11,7 +11,7 @@ import {
 
 export default function Home() {
   let unmounted = false;
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [wallPhoto, setWallPhoto] = useState<string>();
 

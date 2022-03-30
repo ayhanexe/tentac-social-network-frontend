@@ -9,7 +9,7 @@ import { defaultPostLength } from "../../@tentac/constants/config.constants";
 import { RootState } from "../../@tentac/redux/store";
 import { IAuthenticationServiceState } from "../../@tentac/services/authentication-service/state/Authentication.state.types";
 import UserService from "../../@tentac/services/user-service/user-service";
-import { IUser } from "../../@tentac/types/auth/authTypes";
+import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
 import {
   getCurrentUser,
@@ -21,7 +21,7 @@ import "./ProfilePage.scss";
 export default function ProfilePage() {
   let isUnmounted = false;
   const [textarea, setTextarea] = useState<string>();
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [wallPhoto, setWallPhoto] = useState<string>();
   const [letters, setLetters] = useState<string>();

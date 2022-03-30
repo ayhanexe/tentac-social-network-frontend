@@ -21,7 +21,7 @@ import AlertService from "../../@tentac/services/alert-service/Alert.service";
 import { useDispatch } from "react-redux";
 import { addUserInfo } from "../../@tentac/services/authentication-service/state/Authentication.actions";
 import UserService from "../../@tentac/services/user-service/user-service";
-import AuthenticationTypes, { IUser } from "../../@tentac/types/auth/authTypes";
+import AuthenticationTypes, { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { useSearchParams } from "react-router-dom";
 import CookieService from "../../@tentac/services/storage-service/StorageService";
 import StorageService from "../../@tentac/services/storage-service/StorageService";
@@ -160,7 +160,7 @@ export default function Authentication() {
                     .get(`${response.id}`, {
                       bearerToken: response.token,
                     })
-                    .then(async (user: IUser) => {
+                    .then(async (user: IAuthUser) => {
                       const storageService: StorageService =
                         new StorageService();
 

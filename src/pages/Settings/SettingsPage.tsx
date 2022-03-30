@@ -1,4 +1,5 @@
 import {
+  BaseSyntheticEvent,
   FormEvent,
   MutableRefObject,
   useEffect,
@@ -6,7 +7,7 @@ import {
   useState,
 } from "react";
 import Profile from "../../@components/Profile/Profile";
-import { IUser } from "../../@tentac/types/auth/authTypes";
+import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { getCurrentUser, getUserProfilePhoto } from "../../utils/Utils";
 import moment from "moment";
 
@@ -19,10 +20,11 @@ import { RootState } from "../../@tentac/redux/store";
 import { AlertService } from "../../@tentac/services";
 import { Navigate } from "react-router-dom";
 import Header from "../../@components/Header/Header";
+import axios from "axios";
 
 export default function SettingsPage() {
   let isUnmounted = false;
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [letters, setLetters] = useState<string>();
   const state = useSelector((store: RootState) => store.auth);
@@ -34,6 +36,9 @@ export default function SettingsPage() {
   const [gender, setGender] = useState<number>();
   const [telephone, setTelephone] = useState<string>();
 
+  const profileFileInputRef = useRef<HTMLInputElement>(null);
+  const profileImageRef = useRef<HTMLImageElement>(null);
+
   useEffect(() => {
     if (!isUnmounted) {
       (async () => {
@@ -42,6 +47,20 @@ export default function SettingsPage() {
           setUser(_user);
         }
       })();
+
+      profileFileInputRef.current?.addEventListener("change", function (e) {
+        if (this.files && this.files.length > 0) {
+          var oFReader = new FileReader();
+          const file = this.files[0];
+          oFReader.readAsDataURL(file);
+
+          oFReader.onload = function (oFREvent) {
+            if (profileImageRef.current) {
+              profileImageRef.current.src = `${oFREvent.target?.result}`;
+            }
+          };
+        }
+      });
     }
     return () => {
       isUnmounted = true;
@@ -63,6 +82,12 @@ export default function SettingsPage() {
       })();
     }
   }, [user]);
+
+  const handleProfileSelect = (e: BaseSyntheticEvent) => {
+    console.log(profileFileInputRef.current);
+    profileFileInputRef.current?.click();
+    e.preventDefault();
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -86,7 +111,27 @@ export default function SettingsPage() {
             token: `${state?.user?.token}`,
           }
         )
-        .then(() => {
+        .then(async () => {
+          if (
+            profileFileInputRef.current &&
+            profileFileInputRef.current.files &&
+            profileFileInputRef.current.files.length > 0
+          ) {
+            var formData = new FormData();
+            formData.append("File", profileFileInputRef.current.files[0]);
+
+            const userService: UserService = new UserService();
+
+            if (user) {
+              await userService
+                .uploadProfileImage(formData, user.id, {
+                  bearerToken: user.token,
+                  token: user.token,
+                })
+                .catch(() => {});
+            }
+          }
+
           alertService.Success({
             text: "Saved!",
           });
@@ -108,13 +153,16 @@ export default function SettingsPage() {
           className="profile-update-form flex flex-col items-center"
           onSubmit={handleSubmit}
         >
+          <input ref={profileFileInputRef} type="file" className="hidden" />
           <Profile
+            imageRef={profileImageRef}
             radius="150px"
             imageUrl={profilePhoto ?? null}
             letters={letters}
             circleClass="shadow-lg z-10"
             textClass="text-6xl"
             defaultIconClass="text-6xl"
+            onClick={handleProfileSelect}
           />
           <h1 className="mt-5">{user?.email}</h1>
           <h1 className="mt-5">

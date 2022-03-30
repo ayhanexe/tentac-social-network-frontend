@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { IUser } from "../../@tentac/types/auth/authTypes";
+import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { getCurrentUser, getUserProfilePhoto } from "../../utils/Utils";
 import Profile from "../Profile/Profile";
 import "./HomeUserInfo.scss";
 
 export default function HomeUserInfo() {
   let unmounted = false;
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<IAuthUser>();
   const [profileImage, setProfileImage] = useState<string>();
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function HomeUserInfo() {
       </Link>
       <Link
         className="gap-2 home-user-info-item w-full flex items-center py-2 px-3 rounded-md font-medium text-md transition-colors ease-in-out duration-300 hover:bg-slate-100/70"
-        to="/"
+        to="/explore"
       >
         <i className="bi bi-globe2"></i>
         Explore

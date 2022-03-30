@@ -12,7 +12,7 @@ export enum IUserRole {
   user,
 }
 
-export interface IUser {
+export interface IAuthUser {
   name: string;
   surname: string;
   id: string;
@@ -25,9 +25,30 @@ export interface IUser {
   lockoutEnd?: null;
   accessFailedCount?: 0;
   roles: string[];
-  profilePhotos: object[];
+  profilePhotos: IUserProfilePhoto[];
   userWalls: IUserWall[];
   token: string;
+  letters?: string;
+  birthDate?: string | Date | null;
+  gender?: number;
+  tel?: string | null;
+}
+
+export interface IUserInfo {
+  name: string;
+  surname: string;
+  id: string;
+  userName: string;
+  email: string;
+  emailConfirmed?: false;
+  phoneNumber?: null;
+  phoneNumberConfirmed?: false;
+  twoFactorEnabled?: false;
+  lockoutEnd?: null;
+  accessFailedCount?: 0;
+  roles: string[];
+  profilePhotos: IUserProfilePhoto[];
+  userWalls: IUserWall[];
   letters?: string;
   birthDate?: string | Date | null;
   gender?: number;

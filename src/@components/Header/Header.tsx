@@ -1,7 +1,7 @@
 import "./Header.scss";
 
 import React, { BaseSyntheticEvent, useEffect, useRef, useState } from "react";
-import { IUser } from "../../@tentac/types/auth/authTypes";
+import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { Link } from "react-router-dom";
 import { getCurrentUser, getUserProfilePhoto } from "../../utils/Utils";
 import Profile from "../Profile/Profile";
@@ -11,7 +11,7 @@ export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const [dropdownState, setDropdownState] = useState<boolean>(false);
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
 
   const handleDropdownToggle = () =>
@@ -82,7 +82,7 @@ export default function Header() {
         <div
           ref={dropdownRef}
           id="profile-dropdown"
-          className={`absolute shadow-xl right-0 rounded-md py-2 transition-all duration-300 ease-in-out ${
+          className={`absolute shadow-xl right-0 rounded-md py-2 transition-all duration-300 ease-in-out z-50 ${
             dropdownState ? "open" : ""
           }`}
         >

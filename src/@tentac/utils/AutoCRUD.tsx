@@ -5,7 +5,7 @@ import { IAutoCRUD, IAutoCrudOptions } from "./AutoCRUD.type";
 export default abstract class AutoCRUD<EntityType, EntityKey>
   implements IAutoCRUD<EntityType, EntityKey>
 {
-  private apiUrl: string = "";
+  protected apiUrl: string = "";
 
   constructor(apiUrl: string) {
     this.apiUrl = apiUrl;

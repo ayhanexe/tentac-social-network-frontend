@@ -1,5 +1,5 @@
 import { profile } from "console";
-import React, { ForwardedRef, useEffect } from "react";
+import React, { ForwardedRef, RefObject, useEffect } from "react";
 import { HTMLProps } from "react";
 import "./Profile.scss";
 
@@ -12,11 +12,13 @@ interface IProfile extends HTMLProps<HTMLDivElement> {
   defaultIconClass?: string | null;
   hasStory?: boolean;
   storyBorderWidth?: string | null;
+  imageRef?: RefObject<HTMLImageElement>;
 }
 
 export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
   (props, ref) => {
     const {
+      imageRef,
       storyBorderWidth,
       hasStory,
       textClass,
@@ -62,6 +64,7 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
           >
             {imageUrl ? (
               <img
+                ref={imageRef}
                 src={imageUrl}
                 className="w-full h-full z-10 top-0 left-0 object-cover profile-image rounded-full"
                 alt=""
@@ -75,9 +78,7 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
                 {props.letters}
               </h5>
             ) : (
-              <i
-                className={`bi bi-person-fill ${defaultIconClass}`}
-              ></i>
+              <i className={`bi bi-person-fill ${defaultIconClass}`}></i>
             )}
           </div>
         </div>

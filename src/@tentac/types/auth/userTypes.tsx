@@ -1,9 +1,9 @@
-import { IUser } from "./authTypes";
+import { IUserInfo } from "./authTypes";
 
 export interface IPost {
   id: number;
   userId: string;
-  user: IUser;
+  user: IUserInfo;
   text: string;
   isDeleted: boolean;
   createDate: string;

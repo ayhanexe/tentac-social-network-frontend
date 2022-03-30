@@ -3,7 +3,7 @@ import path from "path-browserify";
 import { store } from "../@tentac/redux/store";
 import { IAuthenticationServiceState } from "../@tentac/services/authentication-service/state/Authentication.state.types";
 import UserService from "../@tentac/services/user-service/user-service";
-import { IUser } from "../@tentac/types/auth/authTypes";
+import { IAuthUser } from "../@tentac/types/auth/authTypes";
 
 export default function ClearStyleAttribute(element?: Element | null) {
   element?.setAttribute("style", "");
@@ -24,12 +24,12 @@ export function GetPropertyPath(
   return _memo;
 }
 
-export function getCurrentUser(): Promise<IUser | null> {
+export function getCurrentUser(): Promise<IAuthUser | null> {
   return new Promise(async (resolve, reject) => {
     try {
       const userService: UserService = new UserService();
       const state: IAuthenticationServiceState = store.getState().auth;
-      let user: IUser | null = null;
+      let user: IAuthUser | null = null;
 
       if (state.user) {
         user =
@@ -44,7 +44,8 @@ export function getCurrentUser(): Promise<IUser | null> {
           user?.name && user?.surname
             ? `${user.name[0]} ${user.surname[0]}`
             : null,
-      } as IUser;
+        token: state.user?.token,
+      } as IAuthUser;
 
       resolve(user);
     } catch (error) {
@@ -53,7 +54,7 @@ export function getCurrentUser(): Promise<IUser | null> {
   });
 }
 
-export function getUserProfilePhoto(user: IUser): Promise<string> {
+export function getUserProfilePhoto(user: IAuthUser): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       const usersSortedProfilePhotos = user?.profilePhotos?.map(
@@ -85,7 +86,7 @@ export function getUserProfilePhoto(user: IUser): Promise<string> {
   });
 }
 
-export function getUserWallPhoto(user: IUser): Promise<string> {
+export function getUserWallPhoto(user: IAuthUser): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       const usersSortedWallPhotos = user?.userWalls?.map((user: any) => ({

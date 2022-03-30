@@ -7,7 +7,7 @@ import path from "path-browserify";
 import StorageService from "../storage-service/StorageService";
 import { addUserInfo } from "./state/Authentication.actions";
 import UserService from "../user-service/user-service";
-import { IUser } from "../../types/auth/authTypes";
+import { IAuthUser } from "../../types/auth/authTypes";
 import { store } from "../../redux/store";
 import { pick } from "lodash";
 import { Dispatch } from "redux";
@@ -19,7 +19,7 @@ export default class AuthenticationService implements IAuthenticationService {
         const storageService: StorageService = new StorageService();
         const data = await storageService.GetAllData();
         const sessionData = await storageService.GetAllData(true);
-        console.log(data);
+
         if (data.auth || sessionData.auth) {
           const userService: UserService = new UserService();
           userService
@@ -28,7 +28,7 @@ export default class AuthenticationService implements IAuthenticationService {
             })
             .then(async (response) => {
               const search = Object.values(response).filter(
-                (value: IUser) =>
+                (value: IAuthUser) =>
                   value.email ===
                   `${data.auth?.email ?? sessionData.auth?.email}`
               );
