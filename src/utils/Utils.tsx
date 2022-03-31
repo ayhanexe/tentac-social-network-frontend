@@ -3,7 +3,7 @@ import path from "path-browserify";
 import { store } from "../@tentac/redux/store";
 import { IAuthenticationServiceState } from "../@tentac/services/authentication-service/state/Authentication.state.types";
 import UserService from "../@tentac/services/user-service/user-service";
-import { IAuthUser } from "../@tentac/types/auth/authTypes";
+import { IAuthUser, IBackendUser } from "../@tentac/types/auth/authTypes";
 
 export default function ClearStyleAttribute(element?: Element | null) {
   element?.setAttribute("style", "");
@@ -27,89 +27,31 @@ export function GetPropertyPath(
 export function getCurrentUser(): Promise<IAuthUser | null> {
   return new Promise(async (resolve, reject) => {
     try {
-      const userService: UserService = new UserService();
       const state: IAuthenticationServiceState = store.getState().auth;
       let user: IAuthUser | null = null;
+      let backendUser: IBackendUser | null = null;
+      const userService: UserService = new UserService();
 
       if (state.user) {
-        user =
+        backendUser =
           (await userService.get(`${state.user?.id}`, {
             bearerToken: `${state.user?.token}`,
           })) ?? null;
       }
 
-      user = {
-        ...user,
-        letters:
-          user?.name && user?.surname
-            ? `${user.name[0]} ${user.surname[0]}`
-            : null,
-        token: state.user?.token,
-      } as IAuthUser;
-
+      
+      if(backendUser) {
+        
+        
+        user = {
+          ...backendUser,
+          profilePhotoUrl: backendUser.profilePhoto ? `${path.join(`${process.env.REACT_APP_STATIC_FILES_BASE}`,"media/profiles",`${backendUser?.profilePhoto}`)}` : null,
+          profilePhotoName: backendUser.profilePhoto,
+          letters: backendUser.name && backendUser.surname ? `${backendUser.name[0]}${backendUser.surname[0]}` : null,
+          token: state.user?.token,
+        } as IAuthUser;
+      }
       resolve(user);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-export function getUserProfilePhoto(user: IAuthUser): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const usersSortedProfilePhotos = user?.profilePhotos?.map(
-        (user: any) => ({
-          ...user,
-          createDate: new Date(user.createDate).toDateString(),
-        })
-      );
-
-      const _profilePhoto = sortBy(
-        usersSortedProfilePhotos,
-        (user: any) => user.createDate
-      ).reverse()[0];
-
-      if (_profilePhoto) {
-        resolve(
-          path.join(
-            `${process.env.REACT_APP_STATIC_FILES_BASE}`,
-            "/media/profiles/",
-            _profilePhoto.photo
-          )
-        );
-      } else {
-        reject();
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-export function getUserWallPhoto(user: IAuthUser): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const usersSortedWallPhotos = user?.userWalls?.map((user: any) => ({
-        ...user,
-        createDate: new Date(user.createDate).toDateString(),
-      }));
-
-      const _wallPhoto = sortBy(
-        usersSortedWallPhotos,
-        (user: any) => user.createDate
-      ).reverse()[0];
-
-      if (_wallPhoto) {
-        resolve(
-          path.join(
-            `${process.env.REACT_APP_STATIC_FILES_BASE}`,
-            "/media/walls/",
-            _wallPhoto.photo
-          )
-        );
-      } else {
-        reject();
-      }
     } catch (error) {
       reject(error);
     }
@@ -125,4 +67,22 @@ export function generateColor(
   },${Math.random() * 255}${
     returnRgba ? `,${Math.random() * maxOpacity}` : ""
   })`;
+}
+
+export function getFileFromInput(element: HTMLInputElement): Promise<string> {
+  return new Promise((resolve, reject) => {
+    try {
+      if (element.files && element.files.length > 0) {
+        var oFReader = new FileReader();
+        const file = element.files[0];
+        oFReader.readAsDataURL(file);
+
+        oFReader.onload = function (oFREvent) {
+          resolve(`${oFREvent.target?.result}`);
+        };
+      }
+    } catch (error) {
+      reject(null);
+    }
+  });
 }

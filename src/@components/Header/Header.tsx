@@ -3,7 +3,7 @@ import "./Header.scss";
 import React, { BaseSyntheticEvent, useEffect, useRef, useState } from "react";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { Link } from "react-router-dom";
-import { getCurrentUser, getUserProfilePhoto } from "../../utils/Utils";
+import { getCurrentUser } from "../../utils/Utils";
 import Profile from "../Profile/Profile";
 
 export default function Header() {
@@ -16,6 +16,12 @@ export default function Header() {
 
   const handleDropdownToggle = () =>
     !unmounted ? setDropdownState(!dropdownState) : null;
+
+  useEffect(() => {
+    if (user?.profilePhotoUrl) {
+      setProfilePhoto(user.profilePhotoUrl);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!unmounted) {
@@ -35,9 +41,6 @@ export default function Header() {
         const _user = await getCurrentUser();
         if (_user) {
           if (!unmounted) setUser(_user);
-
-          const profilePhoto = await getUserProfilePhoto(_user).catch(() => {});
-          if (profilePhoto && !unmounted) setProfilePhoto(profilePhoto);
         }
       })();
     }

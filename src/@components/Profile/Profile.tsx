@@ -1,11 +1,12 @@
 import { profile } from "console";
-import React, { ForwardedRef, RefObject, useEffect } from "react";
+import React, { ForwardedRef, RefObject, useEffect, useState } from "react";
 import { HTMLProps } from "react";
 import "./Profile.scss";
 
 interface IProfile extends HTMLProps<HTMLDivElement> {
   radius?: string;
   imageUrl?: string | null;
+  changeImage?: string | null;
   letters?: string | null;
   circleClass?: string | null;
   textClass?: string | null;
@@ -27,6 +28,22 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
       defaultIconClass,
       ...rest
     } = props;
+    
+    const [profileImage, setProfileImage] = useState<string>();
+
+    useEffect(() => {
+      if(imageUrl) setProfileImage(imageUrl);
+      
+      if (imageRef?.current) {
+        const observer = new MutationObserver((changes) => {
+          changes.forEach((change) => {
+            if (change.attributeName?.includes("src")) setProfileImage(imageRef.current?.src)
+          });
+        });
+
+        observer.observe(imageRef?.current, { attributes: true });
+      }
+    });
 
     return (
       <div
@@ -62,24 +79,25 @@ export const Profile = React.forwardRef<HTMLDivElement, IProfile>(
                 : "0 0 100%",
             }}
           >
-            {imageUrl ? (
-              <img
-                ref={imageRef}
-                src={imageUrl}
-                className="w-full h-full z-10 top-0 left-0 object-cover profile-image rounded-full"
-                alt=""
-              />
-            ) : props.letters ? (
-              <h5
-                className={`uppercase antialiased text-lg text-center font-medium ${
-                  textClass ?? ""
-                }`}
-              >
-                {props.letters}
-              </h5>
-            ) : (
+            <img
+              ref={imageRef}
+              src={profileImage}
+              className={`w-full h-full z-10 top-0 left-0 object-cover profile-image rounded-full ${
+                profileImage ? "" : "hidden"
+              }`}
+              alt=""
+            />
+            <h5
+              className={`uppercase antialiased text-lg text-center font-medium ${
+                !profileImage && props.letters ? "" : "hidden"
+              } ${textClass ?? ""}`}
+            >
+              {props?.letters}
+            </h5>
+
+            {!profileImage && !props.letters ? (
               <i className={`bi bi-person-fill ${defaultIconClass}`}></i>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

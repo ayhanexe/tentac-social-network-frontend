@@ -8,24 +8,28 @@ import {
 } from "react";
 import Profile from "../../@components/Profile/Profile";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
-import { getCurrentUser, getUserProfilePhoto } from "../../utils/Utils";
+import { getCurrentUser, getFileFromInput } from "../../utils/Utils";
 import moment from "moment";
 
 import "./SettingsPage.scss";
 import { Gender } from "../../@tentac/constants/data.constants";
 import { isNumber } from "lodash";
 import UserService from "../../@tentac/services/user-service/user-service";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../@tentac/redux/store";
 import { AlertService } from "../../@tentac/services";
 import { Navigate } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import axios from "axios";
+import { addUserInfo } from "../../@tentac/services/authentication-service/state/Authentication.actions";
+import path from "path-browserify";
 
 export default function SettingsPage() {
   let isUnmounted = false;
+  const dispatch = useDispatch();
   const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
+  const [wallImage, setWallImage] = useState<string>("wall-default.jpg");
   const [letters, setLetters] = useState<string>();
   const state = useSelector((store: RootState) => store.auth);
   const alertService: AlertService = new AlertService();
@@ -37,7 +41,9 @@ export default function SettingsPage() {
   const [telephone, setTelephone] = useState<string>();
 
   const profileFileInputRef = useRef<HTMLInputElement>(null);
+  const wallImageInputRef = useRef<HTMLInputElement>(null);
   const profileImageRef = useRef<HTMLImageElement>(null);
+  const wallImageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (!isUnmounted) {
@@ -48,19 +54,28 @@ export default function SettingsPage() {
         }
       })();
 
-      profileFileInputRef.current?.addEventListener("change", function (e) {
-        if (this.files && this.files.length > 0) {
-          var oFReader = new FileReader();
-          const file = this.files[0];
-          oFReader.readAsDataURL(file);
+      profileFileInputRef.current?.addEventListener(
+        "change",
+        async function (e) {
+          const file = await getFileFromInput(this);
 
-          oFReader.onload = function (oFREvent) {
-            if (profileImageRef.current) {
-              profileImageRef.current.src = `${oFREvent.target?.result}`;
-            }
-          };
+          if (profileImageRef.current) {
+            console.log(profileImageRef.current);
+            profileImageRef.current.src = `${file}`;
+          }
         }
-      });
+      );
+      
+      wallImageInputRef.current?.addEventListener(
+        "change",
+        async function (e) {
+          const file = await getFileFromInput(this);
+
+          if (wallImageRef.current) {
+            wallImageRef.current.src = `${file}`;
+          }
+        }
+      );
     }
     return () => {
       isUnmounted = true;
@@ -71,20 +86,25 @@ export default function SettingsPage() {
     if (!isUnmounted) {
       (async () => {
         if (user) {
-          const profilePhoto = await getUserProfilePhoto(user).catch(() => {});
-
-          if (profilePhoto && !isUnmounted) setProfilePhoto(profilePhoto);
-
           if (user.name && user.surname) {
             setLetters(`${user.name[0]}${user.name[0]}`);
           }
         }
       })();
     }
+
+    if (user?.profilePhotoUrl) {
+      if (profileImageRef.current) {
+        profileImageRef.current.src = user.profilePhotoUrl;
+      }
+    }
+    
+    if(user?.userWall) {
+      setWallImage(user.userWall)
+    }
   }, [user]);
 
   const handleProfileSelect = (e: BaseSyntheticEvent) => {
-    console.log(profileFileInputRef.current);
     profileFileInputRef.current?.click();
     e.preventDefault();
   };
@@ -105,6 +125,7 @@ export default function SettingsPage() {
             birthDate: birthdate ?? user.birthDate,
             gender: gender ?? user.gender,
             tel: telephone ?? user.tel,
+            profilePhoto: user.profilePhotoName
           },
           {
             bearerToken: `${state?.user?.token}`,
@@ -112,21 +133,72 @@ export default function SettingsPage() {
           }
         )
         .then(async () => {
+          console.log({
+            ...user,
+            name: name ?? user.name,
+            surname: surname ?? user.surname,
+            birthDate: birthdate ?? user.birthDate,
+            gender: gender ?? user.gender,
+            tel: telephone ?? user.tel,})
           if (
             profileFileInputRef.current &&
             profileFileInputRef.current.files &&
-            profileFileInputRef.current.files.length > 0
+            profileFileInputRef.current.files.length != 0
           ) {
             var formData = new FormData();
             formData.append("File", profileFileInputRef.current.files[0]);
-
             const userService: UserService = new UserService();
+            
+            console.log(profileFileInputRef.current.files[0]);
 
             if (user) {
               await userService
                 .uploadProfileImage(formData, user.id, {
                   bearerToken: user.token,
                   token: user.token,
+                })
+                .then((imagePath: string) => {
+                  dispatch(
+                    addUserInfo({
+                      ...user,
+                      profilePhotoUrl: `${path.join(
+                        `${process.env.REACT_APP_STATIC_FILES_BASE}/media/profiles/`,
+                        imagePath
+                      )}`,
+                      profilePhotoName: imagePath
+                    })
+                  );
+                })
+                .catch(() => {});
+            }
+          }
+          
+          if (
+            wallImageInputRef.current &&
+            wallImageInputRef.current.files &&
+            wallImageInputRef.current.files.length > 0
+          ) {
+            var formData = new FormData();
+            formData.append("File", wallImageInputRef.current.files[0]);
+
+            const userService: UserService = new UserService();
+
+            if (user) {
+              await userService
+                .uploadWallImage(formData, user.id, {
+                  bearerToken: user.token,
+                  token: user.token,
+                })
+                .then((imagePath: string) => {
+                  dispatch(
+                    addUserInfo({
+                      ...user,
+                      userWall: `${path.join(
+                        `${process.env.REACT_APP_STATIC_FILES_BASE}/media/walls/`,
+                        imagePath
+                      )}`,
+                    })
+                  );
                 })
                 .catch(() => {});
             }
@@ -144,6 +216,11 @@ export default function SettingsPage() {
     }
   };
 
+  const handleWallSelect = (e: BaseSyntheticEvent) => {
+    wallImageInputRef.current?.click();
+    e.preventDefault();
+  };
+
   return (
     <div className="p-3">
       <Header />
@@ -154,6 +231,8 @@ export default function SettingsPage() {
           onSubmit={handleSubmit}
         >
           <input ref={profileFileInputRef} type="file" className="hidden" />
+          <input ref={wallImageInputRef} type="file" className="hidden" />
+
           <Profile
             imageRef={profileImageRef}
             radius="150px"
@@ -173,6 +252,22 @@ export default function SettingsPage() {
               {user?.name} {user?.surname}
             </h1>
           ) : null}
+          <div
+            id="wall"
+            onClick={handleWallSelect}
+            className="overflow-hidden w-full bg-amber-500/10 my-5 rounded-lg"
+          >
+            <img
+            ref={wallImageRef}
+              className="w-full h-full object-cover"
+              src={path.join(
+                `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                `media/walls`,
+                wallImage
+              )}
+              alt=""
+            />
+          </div>
           <div className="mt-5 flex flex-col w-full items-center">
             <div className="flex flex-col form-group">
               <label htmlFor="name" className="text-sm font-medium">

@@ -13,7 +13,7 @@ import { pick } from "lodash";
 import { Dispatch } from "redux";
 
 export default class AuthenticationService implements IAuthenticationService {
-  Initialize(dispatch:Dispatch<any>): Promise<void> {
+  Initialize(dispatch: Dispatch<any>): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
         const storageService: StorageService = new StorageService();
@@ -48,11 +48,17 @@ export default class AuthenticationService implements IAuthenticationService {
                       "userName",
                       "roles",
                       "token",
-                      "profilePhotos",
-                      "userWalls",
+                      "profilePhotoUrl",
+                      "profilePhotoName",
+                      "userWall",
                     ]),
                     ...pick(localStore.auth, ["roles", "token"]),
                     ...pick(sessionStore.auth, ["roles", "token"]),
+                    profilePhotoUrl: `${path.join(
+                      `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                      `media/profiles`,
+                      `${search[0].profilePhoto}`
+                    )}`,
                   })
                 );
               }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
-import { getCurrentUser, getUserProfilePhoto } from "../../utils/Utils";
+import { getCurrentUser } from "../../utils/Utils";
 import Profile from "../Profile/Profile";
 import "./HomeUserInfo.scss";
 
@@ -11,14 +11,18 @@ export default function HomeUserInfo() {
   const [profileImage, setProfileImage] = useState<string>();
 
   useEffect(() => {
+    if (user?.profilePhotoUrl) {
+      setProfileImage(user.profilePhotoUrl)
+    }
+  }, [user]);
+  
+  useEffect(() => {
     if (!unmounted) {
       (async () => {
         const user = await getCurrentUser();
         if (user) {
           if (!unmounted) {
             setUser(user);
-            const image = await getUserProfilePhoto(user).catch(() => {});
-            if (image && !unmounted) setProfileImage(image);
           }
         }
       })();
@@ -28,10 +32,7 @@ export default function HomeUserInfo() {
       unmounted = true;
     };
   }, []);
-  
-  useEffect(() => {
-    console.log(profileImage)
-  }, [profileImage])
+
 
   return (
     <div

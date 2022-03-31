@@ -11,11 +11,7 @@ import { IAuthenticationServiceState } from "../../@tentac/services/authenticati
 import UserService from "../../@tentac/services/user-service/user-service";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
-import {
-  getCurrentUser,
-  getUserProfilePhoto,
-  getUserWallPhoto,
-} from "../../utils/Utils";
+import { getCurrentUser } from "../../utils/Utils";
 import "./ProfilePage.scss";
 
 export default function ProfilePage() {
@@ -48,17 +44,19 @@ export default function ProfilePage() {
     if (!isUnmounted) {
       (async () => {
         if (user) {
-          const profilePhoto = await getUserProfilePhoto(user).catch(() => {});
-          const wallPhoto = await getUserWallPhoto(user).catch(() => {});
-
-          if (profilePhoto) setProfilePhoto(profilePhoto);
-          if (wallPhoto) setWallPhoto(wallPhoto);
-
           if (user.name && user.surname) {
             setLetters(`${user.name[0]}${user.name[0]}`);
           }
         }
       })();
+    }
+
+    if (user?.profilePhotoUrl) {
+      setProfilePhoto(user.profilePhotoUrl);
+    }
+
+    if (user?.userWall) {
+      setWallPhoto(user.userWall);
     }
   }, [user]);
 
@@ -68,7 +66,11 @@ export default function ProfilePage() {
       <main>
         <div id="wall" className="w-full rounded-lg overflow-hidden">
           <img
-            src={`${wallPhoto}`}
+            src={path.join(
+              `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+              `media/walls`,
+              `${wallPhoto}`
+            )}
             className="w-full h-full object-cover"
             alt=""
           />

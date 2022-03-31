@@ -21,11 +21,12 @@ import AlertService from "../../@tentac/services/alert-service/Alert.service";
 import { useDispatch } from "react-redux";
 import { addUserInfo } from "../../@tentac/services/authentication-service/state/Authentication.actions";
 import UserService from "../../@tentac/services/user-service/user-service";
-import AuthenticationTypes, { IAuthUser } from "../../@tentac/types/auth/authTypes";
+import AuthenticationTypes, { IAuthUser, IBackendUser } from "../../@tentac/types/auth/authTypes";
 import { useSearchParams } from "react-router-dom";
 import CookieService from "../../@tentac/services/storage-service/StorageService";
 import StorageService from "../../@tentac/services/storage-service/StorageService";
 import { IStoragePatch } from "../../@tentac/services/storage-service/StorageService.types";
+import path from "path-browserify";
 
 export default function Authentication() {
   let isUnmounted = false;
@@ -160,7 +161,7 @@ export default function Authentication() {
                     .get(`${response.id}`, {
                       bearerToken: response.token,
                     })
-                    .then(async (user: IAuthUser) => {
+                    .then(async (user: IBackendUser) => {
                       const storageService: StorageService =
                         new StorageService();
 
@@ -197,8 +198,9 @@ export default function Authentication() {
                           phoneNumberConfirmed: user.phoneNumberConfirmed,
                           accessFailedCount: user.accessFailedCount,
                           token: response.token,
-                          profilePhotos: user.profilePhotos,
-                          userWalls: user.userWalls,
+                          profilePhotoUrl: path.join(`${process.env.REACT_APP_STATIC_FILES_BASE}`,`media/profiles`, `${user.profilePhoto}`),
+                          profilePhotoName: user.profilePhoto,
+                          userWall: user.userWall,
                         })
                       );
                     });

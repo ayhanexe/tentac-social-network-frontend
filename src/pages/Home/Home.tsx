@@ -5,8 +5,6 @@ import HomeUserInfo from "../../@components/HomeUserInfo/HomeUserInfo";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import {
   getCurrentUser,
-  getUserProfilePhoto,
-  getUserWallPhoto,
 } from "../../utils/Utils";
 
 export default function Home() {
@@ -20,11 +18,6 @@ export default function Home() {
       const _user = await getCurrentUser();
       if (_user) {
         if (!unmounted) setUser(_user);
-        const photo = await getUserProfilePhoto(_user).catch(() => {});
-        const wall = await getUserWallPhoto(_user).catch(() => {});
-
-        if (photo && !unmounted) setProfilePhoto(photo);
-        if (wall && !unmounted) setWallPhoto(wall);
       }
     })();
 

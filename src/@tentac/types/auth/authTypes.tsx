@@ -25,8 +25,9 @@ export interface IAuthUser {
   lockoutEnd?: null;
   accessFailedCount?: 0;
   roles: string[];
-  profilePhotos: IUserProfilePhoto[];
-  userWalls: IUserWall[];
+  profilePhotoUrl: string | null;
+  profilePhotoName: string | null;
+  userWall: string | null;
   token: string;
   letters?: string;
   birthDate?: string | Date | null;
@@ -47,30 +48,33 @@ export interface IUserInfo {
   lockoutEnd?: null;
   accessFailedCount?: 0;
   roles: string[];
-  profilePhotos: IUserProfilePhoto[];
-  userWalls: IUserWall[];
+  profilePhotoUrl: string | null;
+  profilePhotoName: string | null;
+  userWall: string | null;
   letters?: string;
   birthDate?: string | Date | null;
   gender?: number;
   tel?: string | null;
 }
 
-export interface IUserWall {
-  id: number;
-  userId: string;
-  photo: string;
-  isDeleted: boolean;
-  createDate: string;
-  deleteDate: string | null;
-  lastModificationDate: string | null;
-}
-
-export interface IUserProfilePhoto {
-  id: number;
-  userId: string;
-  photo: string;
-  isDeleted: boolean;
-  createDate: string;
-  deleteDate: string | null;
-  lastModificationDate: string | null;
+export interface IBackendUser {
+  name: string;
+  surname: string;
+  id: string;
+  userName: string;
+  email: string;
+  emailConfirmed?: false;
+  phoneNumber?: null;
+  phoneNumberConfirmed?: false;
+  twoFactorEnabled?: false;
+  lockoutEnd?: null;
+  accessFailedCount?: 0;
+  roles: string[];
+  profilePhoto: string | null;
+  userWall: string | null;
+  token: string;
+  letters?: string;
+  birthDate?: string | Date | null;
+  gender?: number;
+  tel?: string | null;
 }
