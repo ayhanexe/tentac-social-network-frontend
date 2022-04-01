@@ -10,7 +10,6 @@ export default class UserService extends AutoCRUD<IBackendUser, string> {
       `${process.env.REACT_APP_API_BASE}`,
       "Users"
     );
-
     super(apiUrl);
   }
 

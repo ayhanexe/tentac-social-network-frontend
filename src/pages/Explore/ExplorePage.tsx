@@ -2,95 +2,26 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import UserService from "../../@tentac/services/user-service/user-service";
-import { IAuthUser, IBackendUser, IUserInfo } from "../../@tentac/types/auth/authTypes";
-import { getCurrentUser } from "../../utils/Utils";
+import {
+  IAuthUser,
+  IBackendUser,
+  IUserInfo,
+} from "../../@tentac/types/auth/authTypes";
+import { getCurrentUser, makeAssetUrl } from "../../utils/Utils";
 import "./ExplorePage.scss";
 
 export default function ExplorePage() {
   let isUnmounted = false;
   const [authUser, setAuthUser] = useState<IAuthUser | null>();
   const [users, setUsers] = useState<IBackendUser[]>();
-  const dummyData: IUserInfo[] = [
-    {
-      id: "0",
-      name: "Ayxan",
-      surname: "Abdullayev",
-      email: "ayxan@tentac.com",
-      roles: ["admin"],
-      profilePhotoName: "",
-      profilePhotoUrl: `https://assets3.thrillist.com/v1/image/2858077/828x1500/flatten;scale;webp=auto;jpeg_quality=60.jpg`,
-      userWall: null,
-      userName: "Admin",
-      gender: 0,
-    },
-    {
-      id: "1",
-      name: "Ayxan",
-      surname: "Abdullayev",
-      email: "ayxan@tentac.com",
-      roles: ["admin"],
-      profilePhotoName: "",
-      profilePhotoUrl: `https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80`,
-      userWall: null,
-      userName: "Admin",
-      gender: 0,
-    },
-    {
-      id: "2",
-      name: "Ayxan",
-      surname: "Abdullayev",
-      email: "ayxan@tentac.com",
-      roles: ["admin"],
-      profilePhotoName: "",
-      profilePhotoUrl:`https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80`,
-      userWall: null,
-      userName: "Admin",
-      gender: 0,
-    },
-    {
-      id: "3",
-      name: "Ayxan",
-      surname: "Abdullayev",
-      email: "ayxan@tentac.com",
-      roles: ["admin"],
-      profilePhotoName: "",
-      profilePhotoUrl: `https://images.unsplash.com/photo-1481824429379-07aa5e5b0739?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=696&q=80`,
-      userWall: null,
-      userName: "Admin",
-      gender: 0,
-    },
-    {
-      id: "4",
-      name: "Ayxan",
-      surname: "Abdullayev",
-      email: "ayxan@tentac.com",
-      roles: ["admin"],
-      profilePhotoName: "",
-      profilePhotoUrl:`https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80`,
-      userWall: null,
-      userName: "Admin",
-      gender: 0,
-    },
-    {
-      id: "5",
-      name: "Ayxan",
-      surname: "Abdullayev",
-      email: "ayxan@tentac.com",
-      roles: ["admin"],
-      profilePhotoName: "",
-      profilePhotoUrl: `https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80`,
-      userWall: null,
-      userName: "Admin",
-      gender: 0,
-    },
-  ];
 
   useEffect(() => {
+    let isUnmounted = false;
     const userService: UserService = new UserService();
 
     (async () => {
       const _user: IAuthUser | null = await getCurrentUser();
-      setAuthUser(_user);
+      if (!isUnmounted) setAuthUser(_user);
 
       if (_user) {
         const users = await userService.getAll({
@@ -98,7 +29,7 @@ export default function ExplorePage() {
         });
 
         if (users && !isUnmounted) {
-          setUsers(users);
+          setUsers(users.filter((user) => user.id != _user?.id));
         }
       }
     })();
@@ -111,24 +42,36 @@ export default function ExplorePage() {
   return (
     <div className="p-3">
       <Header />
-      <div className="profiles-container py-5">
-        {dummyData.map((data, index) => {
-          return (
-            <Link to={`/user-details/${data.id}`} key={index}>
+      <div className="profiles-container py-5 flex justify-center">
+        {users?.length == 0 ? (
+          <h1 className="w-full text-center text-3xl my-10 font-bold">Heçkim tapılmadı :/</h1>
+        ) : (
+          users?.map((user, index) => (
+            <Link to={`/user-details/${user.id}`} key={index}>
               <div className="profile-item relative shadow-lg">
                 <div className="image-container w-full h-full relative rounded-md overflow-hidden">
                   <img
-                    src={`${data.profilePhotoUrl}`}
-                    className="w-full h-full object-cover absolute top-0 left-0 z-0"
+                    src={`${makeAssetUrl(
+                      `${user.profilePhoto}`,
+                      `media/profiles`
+                    )}`}
+                    className="w-full h-full object-cover absolute top-0 left-0 z-20"
                   />
                 </div>
                 <span className="z-10 absolute -bottom-2 text-center w-full translate-y-full text-md font-medium">
-                  {data.name} {data.surname}
+                  {user.name} {user.surname}
                 </span>
+                <div className="user-actions-carousel absolute right-0 top-0 z-10">
+                  <div className="user-actions rounded-md flex flex-col">
+                    <button className="action-button flex items-center justify-center rounded-full">
+                      <i className="bi bi-person-plus-fill"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </Link>
-          );
-        })}
+          ))
+        )}
       </div>
     </div>
   );

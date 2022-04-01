@@ -39,15 +39,21 @@ export function getCurrentUser(): Promise<IAuthUser | null> {
           })) ?? null;
       }
 
-      
-      if(backendUser) {
-        
-        
+      if (backendUser) {
         user = {
           ...backendUser,
-          profilePhotoUrl: backendUser.profilePhoto ? `${path.join(`${process.env.REACT_APP_STATIC_FILES_BASE}`,"media/profiles",`${backendUser?.profilePhoto}`)}` : null,
+          profilePhotoUrl: backendUser.profilePhoto
+            ? `${path.join(
+                `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                "media/profiles",
+                `${backendUser?.profilePhoto}`
+              )}`
+            : null,
           profilePhotoName: backendUser.profilePhoto,
-          letters: backendUser.name && backendUser.surname ? `${backendUser.name[0]}${backendUser.surname[0]}` : null,
+          letters:
+            backendUser.name && backendUser.surname
+              ? `${backendUser.name[0]}${backendUser.surname[0]}`
+              : null,
           token: state.user?.token,
         } as IAuthUser;
       }
@@ -85,4 +91,12 @@ export function getFileFromInput(element: HTMLInputElement): Promise<string> {
       reject(null);
     }
   });
+}
+
+export function makeAssetUrl(fileName: string, middleware: string) {
+  return `${path.join(
+    `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+    `${middleware}`,
+    `${fileName}`
+  )}`;
 }

@@ -21,7 +21,10 @@ import AlertService from "../../@tentac/services/alert-service/Alert.service";
 import { useDispatch } from "react-redux";
 import { addUserInfo } from "../../@tentac/services/authentication-service/state/Authentication.actions";
 import UserService from "../../@tentac/services/user-service/user-service";
-import AuthenticationTypes, { IAuthUser, IBackendUser } from "../../@tentac/types/auth/authTypes";
+import AuthenticationTypes, {
+  IAuthUser,
+  IBackendUser,
+} from "../../@tentac/types/auth/authTypes";
 import { useSearchParams } from "react-router-dom";
 import CookieService from "../../@tentac/services/storage-service/StorageService";
 import StorageService from "../../@tentac/services/storage-service/StorageService";
@@ -101,20 +104,29 @@ export default function Authentication() {
                 });
             }
           })
-          .catch((response: IRegisterResponse) => {
-            if (Object.keys(response.errors).length > 0) {
-              const errorMessage = `${flattenDeep(
-                Object.values(response.errors)
-              ).join("<br>")}`;
+          .catch((response: any) => {
+            console.log(response)
+            if (response.errors) {
+              if (Object.keys(response.errors).length > 0) {
+                const errorMessage = `${flattenDeep(
+                  Object.values(response.errors)
+                ).join("<br>")}`;
 
+                alertService.Error({
+                  title: "Ooops!",
+                  html: `${errorMessage}`,
+                });
+              } else {
+                alertService.Error({
+                  title: "Ooops!",
+                  text: `${response.message}`,
+                });
+              }
+            }
+            else if(response?.data?.hasError) {
               alertService.Error({
                 title: "Ooops!",
-                html: `${errorMessage}`,
-              });
-            } else {
-              alertService.Error({
-                title: "Ooops!",
-                text: `${response.message}`,
+                html: `${response.data.message}`,
               });
             }
           });
@@ -136,6 +148,7 @@ export default function Authentication() {
     const authService: AuthenticationService = new AuthenticationService();
     const alertService: AlertService = new AlertService();
 
+    console.log();
     try {
       authService
         .Login(loginEmail, loginPassword)
@@ -198,7 +211,11 @@ export default function Authentication() {
                           phoneNumberConfirmed: user.phoneNumberConfirmed,
                           accessFailedCount: user.accessFailedCount,
                           token: response.token,
-                          profilePhotoUrl: path.join(`${process.env.REACT_APP_STATIC_FILES_BASE}`,`media/profiles`, `${user.profilePhoto}`),
+                          profilePhotoUrl: path.join(
+                            `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                            `media/profiles`,
+                            `${user.profilePhoto}`
+                          ),
                           profilePhotoName: user.profilePhoto,
                           userWall: user.userWall,
                         })
@@ -214,6 +231,7 @@ export default function Authentication() {
           }
         })
         .catch((response: ILoginResponse) => {
+          console.log(response);
           if (Object.values(response.errors).length > 0) {
             const errorMessage = `${flattenDeep(
               Object.values(response.errors)
@@ -498,6 +516,7 @@ export default function Authentication() {
             label="Email*"
             placeholder="Email"
             type="email"
+            defaultValue={"0x21106@gmail.com "}
             onChange={(e: BaseSyntheticEvent) =>
               !isUnmounted ? setRegisterEmail(e.target.value) : null
             }
@@ -507,6 +526,7 @@ export default function Authentication() {
             label="Username*"
             placeholder="Username"
             type="text"
+            defaultValue={"0x21106.jsx "}
             onChange={(e: BaseSyntheticEvent) =>
               !isUnmounted ? setRegisterUsername(e.target.value) : null
             }
@@ -518,6 +538,7 @@ export default function Authentication() {
               label="Şifrə*"
               placeholder="Şifrə"
               type="password"
+              defaultValue={"12345678 "}
               onChange={(e: BaseSyntheticEvent) =>
                 !isUnmounted ? setRegisterPassword(e.target.value) : null
               }
@@ -527,6 +548,7 @@ export default function Authentication() {
               label="Şifrə Təkrar*"
               placeholder="Şifrə Təkrar"
               type="password"
+              defaultValue={"12345678 "}
               onChange={(e: BaseSyntheticEvent) =>
                 !isUnmounted ? setRegisterPasswordAgain(e.target.value) : null
               }
@@ -538,6 +560,7 @@ export default function Authentication() {
               label="Ad"
               placeholder="Ad"
               type="text"
+              defaultValue={"Ayxan "}
               onChange={(e: BaseSyntheticEvent) =>
                 !isUnmounted ? setRegisterName(e.target.value) : null
               }
@@ -547,6 +570,7 @@ export default function Authentication() {
               label="Soyad"
               placeholder="Soyad"
               type="text"
+              defaultValue={"Abdullayev "}
               onChange={(e: BaseSyntheticEvent) =>
                 !isUnmounted ? setRegisterSurname(e.target.value) : null
               }

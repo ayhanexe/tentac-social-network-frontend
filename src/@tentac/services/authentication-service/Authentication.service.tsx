@@ -153,9 +153,14 @@ export default class AuthenticationService implements IAuthenticationService {
             }
           )
           .then((response) => {
+            if(response.data.hasError) {
+              reject(response);
+            }
             resolve(response.data);
           })
-          .catch((error) => reject(error.response.data));
+          .catch((error) => {
+            reject(error.response.data);
+          });
       } catch (error: any) {
         resolve({
           hasError: true,

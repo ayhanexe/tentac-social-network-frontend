@@ -13,7 +13,7 @@ import moment from "moment";
 
 import "./SettingsPage.scss";
 import { Gender } from "../../@tentac/constants/data.constants";
-import { isNumber } from "lodash";
+import { isNumber, pick } from "lodash";
 import UserService from "../../@tentac/services/user-service/user-service";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../@tentac/redux/store";
@@ -60,22 +60,18 @@ export default function SettingsPage() {
           const file = await getFileFromInput(this);
 
           if (profileImageRef.current) {
-            console.log(profileImageRef.current);
             profileImageRef.current.src = `${file}`;
           }
         }
       );
-      
-      wallImageInputRef.current?.addEventListener(
-        "change",
-        async function (e) {
-          const file = await getFileFromInput(this);
 
-          if (wallImageRef.current) {
-            wallImageRef.current.src = `${file}`;
-          }
+      wallImageInputRef.current?.addEventListener("change", async function (e) {
+        const file = await getFileFromInput(this);
+
+        if (wallImageRef.current) {
+          wallImageRef.current.src = `${file}`;
         }
-      );
+      });
     }
     return () => {
       isUnmounted = true;
@@ -98,9 +94,9 @@ export default function SettingsPage() {
         profileImageRef.current.src = user.profilePhotoUrl;
       }
     }
-    
-    if(user?.userWall) {
-      setWallImage(user.userWall)
+
+    if (user?.userWall) {
+      setWallImage(user.userWall);
     }
   }, [user]);
 
@@ -112,107 +108,126 @@ export default function SettingsPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const userService: UserService = new UserService();
-
     if (user) {
-      const response = await userService
-        .update(
+      const userService: UserService = new UserService();
+      if (user) {
+        await userService.update(
           user.id,
           {
-            ...user,
-            name: name ?? user.name,
-            surname: surname ?? user.surname,
-            birthDate: birthdate ?? user.birthDate,
-            gender: gender ?? user.gender,
-            tel: telephone ?? user.tel,
-            profilePhoto: user.profilePhotoName
+            ...pick(user, [
+              "name",
+              "surname",
+              "id",
+              "userName",
+              "email",
+              "roles",
+              "profilePhotoUrl",
+              "profilePhotoName",
+              "userWall",
+              "token",
+            ]),
+            profilePhoto: user.profilePhotoName,
           },
           {
             bearerToken: `${state?.user?.token}`,
             token: `${state?.user?.token}`,
           }
-        )
-        .then(async () => {
-          console.log({
-            ...user,
-            name: name ?? user.name,
-            surname: surname ?? user.surname,
-            birthDate: birthdate ?? user.birthDate,
-            gender: gender ?? user.gender,
-            tel: telephone ?? user.tel,})
-          if (
-            profileFileInputRef.current &&
-            profileFileInputRef.current.files &&
-            profileFileInputRef.current.files.length != 0
-          ) {
-            var formData = new FormData();
-            formData.append("File", profileFileInputRef.current.files[0]);
-            const userService: UserService = new UserService();
-            
-            console.log(profileFileInputRef.current.files[0]);
-
-            if (user) {
-              await userService
-                .uploadProfileImage(formData, user.id, {
-                  bearerToken: user.token,
-                  token: user.token,
-                })
-                .then((imagePath: string) => {
-                  dispatch(
-                    addUserInfo({
-                      ...user,
-                      profilePhotoUrl: `${path.join(
-                        `${process.env.REACT_APP_STATIC_FILES_BASE}/media/profiles/`,
-                        imagePath
-                      )}`,
-                      profilePhotoName: imagePath
-                    })
-                  );
-                })
-                .catch(() => {});
+        );
+        await userService
+          .update(
+            user.id,
+            {
+              ...user,
+              name: name ?? user.name,
+              surname: surname ?? user.surname,
+              birthDate: birthdate ?? user.birthDate,
+              gender: gender ?? user.gender,
+              tel: telephone ?? user.tel,
+              profilePhoto: user.profilePhotoName
+            },
+            {
+              bearerToken: `${state?.user?.token}`,
+              token: `${state?.user?.token}`,
             }
-          }
-          
-          if (
-            wallImageInputRef.current &&
-            wallImageInputRef.current.files &&
-            wallImageInputRef.current.files.length > 0
-          ) {
-            var formData = new FormData();
-            formData.append("File", wallImageInputRef.current.files[0]);
+          )
+          .then(async () => {
+            if (
+              profileFileInputRef.current &&
+              profileFileInputRef.current.files &&
+              profileFileInputRef.current.files.length != 0
+            ) {
+              var formData = new FormData();
+              formData.append("File", profileFileInputRef.current.files[0]);
+              const userService: UserService = new UserService();
 
-            const userService: UserService = new UserService();
+              if (user) {
+                userService
+                  .uploadProfileImage(formData, user.id, {
+                    bearerToken: user.token,
+                    token: user.token,
+                  })
+                  .then((imagePath: string) => {
+                    console.log("profile image uploaded!")
+                    dispatch(
+                      addUserInfo({
+                        ...user,
+                        profilePhotoUrl: `${path.join(
+                          `${process.env.REACT_APP_STATIC_FILES_BASE}/media/profiles/`,
+                          imagePath
+                        )}`,
+                        profilePhotoName: imagePath
+                      })
+                    );
+                  })
+                  .catch(() => {
 
-            if (user) {
-              await userService
-                .uploadWallImage(formData, user.id, {
-                  bearerToken: user.token,
-                  token: user.token,
-                })
-                .then((imagePath: string) => {
-                  dispatch(
-                    addUserInfo({
-                      ...user,
-                      userWall: `${path.join(
-                        `${process.env.REACT_APP_STATIC_FILES_BASE}/media/walls/`,
-                        imagePath
-                      )}`,
-                    })
-                  );
-                })
-                .catch(() => {});
+                  });
+              }
             }
-          }
 
-          alertService.Success({
-            text: "Saved!",
+            if (
+              wallImageInputRef.current &&
+              wallImageInputRef.current.files &&
+              wallImageInputRef.current.files.length > 0
+            ) {
+              var formData = new FormData();
+              formData.append("File", wallImageInputRef.current.files[0]);
+
+              const userService: UserService = new UserService();
+
+              if (user) {
+                userService
+                  .uploadWallImage(formData, user.id, {
+                    bearerToken: user.token,
+                    token: user.token,
+                  })
+                  .then((imagePath: string) => {
+                    dispatch(
+                      addUserInfo({
+                        ...user,
+                        userWall: `${path.join(
+                          `${process.env.REACT_APP_STATIC_FILES_BASE}/media/walls/`,
+                          imagePath
+                        )}`,
+                      })
+                    );
+                  })
+                  .catch(() => {});
+              }
+            }
+
+            alertService.Success({
+              text: "Saved!",
+            });
+          })
+          .catch((error) => {
+
+            console.log(error)
+            alertService.Error({
+              text: `${error}`.replace("Error: ", ""),
+            });
           });
-        })
-        .catch((error) => {
-          alertService.Error({
-            text: `${error}`.replace("Error: ", ""),
-          });
-        });
+      }
     }
   };
 
@@ -258,7 +273,7 @@ export default function SettingsPage() {
             className="overflow-hidden w-full bg-amber-500/10 my-5 rounded-lg"
           >
             <img
-            ref={wallImageRef}
+              ref={wallImageRef}
               className="w-full h-full object-cover"
               src={path.join(
                 `${process.env.REACT_APP_STATIC_FILES_BASE}`,
