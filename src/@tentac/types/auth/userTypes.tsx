@@ -1,12 +1,12 @@
-import { IUserInfo } from "./authTypes";
+import { IAuthUser, IUserInfo } from "./authTypes";
 
 export interface IPost {
-  id: number;
+  id?: number;
   userId: string;
-  user: IUserInfo;
+  user?: any;
   text: string;
   isDeleted: boolean;
-  createDate: string;
-  deleteDate: string | null;
-  lastModificationDate: string | null;
+  createDate?: string;
+  deleteDate?: string | null;
+  lastModificationDate?: string | null;
 }

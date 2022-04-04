@@ -5,10 +5,11 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
+import ReplyComponent, {
+  IPostData,
+} from "../../@components/ReplyComponent/PostComponent";
 import { defaultPostLength } from "../../@tentac/constants/config.constants";
-import { RootState } from "../../@tentac/redux/store";
-import { IAuthenticationServiceState } from "../../@tentac/services/authentication-service/state/Authentication.state.types";
-import UserService from "../../@tentac/services/user-service/user-service";
+import PostService from "../../@tentac/services/postService/PostService";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
 import { getCurrentUser } from "../../utils/Utils";
@@ -16,23 +17,74 @@ import "./ProfilePage.scss";
 
 export default function ProfilePage() {
   let isUnmounted = false;
+
   const [textarea, setTextarea] = useState<string>();
   const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [wallPhoto, setWallPhoto] = useState<string>();
   const [letters, setLetters] = useState<string>();
   const [posts, setPosts] = useState<IPost>();
+  const [postData, setPostData] = useState<IPost[]>([]);
 
   const handleTextarea = (e: BaseSyntheticEvent) =>
     e.target.value.length <= defaultPostLength
       ? setTextarea(e.target.value)
       : null;
 
+  const handlePost = () => {
+    const postService: PostService = new PostService();
+
+    if (user) {
+      postService
+        .create(
+          {
+            text: `${textarea}`,
+            userId: user?.id,
+            isDeleted: false,
+          },
+          {
+            bearerToken: user.token,
+            token: user.token,
+          }
+        )
+        .then(async () => {
+          const data = await postService.getAll({
+            bearerToken: `${user.token}`,
+            token: `${user.token}`
+          });
+          if(data) setPostData([
+            ...data.filter(d => d.user?.id == user.id)
+          ]);
+        });
+    }
+  };
+
+  const handleDelete = (data: any) => {
+    setPostData([...postData.filter((d) => d.id != data.id)]);
+  };
+
   useEffect(() => {
     if (!isUnmounted) {
       (async () => {
+        const postService: PostService = new PostService();
         const _user = await getCurrentUser();
-        if (_user) setUser(_user);
+
+        if (_user) {
+          const response = await postService.getAll({
+            bearerToken: `${_user?.token}`,
+            token: `${_user?.token}`,
+          });
+
+          if (response) {
+            const newResponse = [
+              ...response.filter((r) => {
+                if (r.user?.id === _user.id) return r;
+              }),
+            ];
+            setPostData(newResponse);
+          }
+          setUser(_user);
+        }
       })();
     }
     return () => {
@@ -134,6 +186,7 @@ export default function ProfilePage() {
                         <i className="bi bi-paperclip"></i>
                       </button>
                       <button
+                        onClick={handlePost}
                         id="post-button"
                         className="rounded-md bg-blue-700/90 px-5 py-2 shadow-md text-white flex items-center content-center gap-1"
                       >
@@ -144,12 +197,25 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-              <h1
-                id="nothing-message"
-                className="text-center mt-20 text-3xl font-bold text-black/50"
-              >
-                Nothing to see here :/
-              </h1>
+
+              {postData.length > 0 ? (
+                postData.map((data, index) => {
+                  return (
+                    <ReplyComponent
+                      onDelete={handleDelete}
+                      key={index}
+                      data={data}
+                    />
+                  );
+                })
+              ) : (
+                <h1
+                  id="nothing-message"
+                  className="text-center mt-20 text-3xl font-bold text-black/50"
+                >
+                  Nothing to see here :/
+                </h1>
+              )}
             </div>
             {/* Post Area End */}
             <div

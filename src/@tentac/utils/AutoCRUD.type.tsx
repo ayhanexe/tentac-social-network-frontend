@@ -12,5 +12,5 @@ export interface IAutoCRUD<EntityType, EntityKey> {
     options: IAutoCrudOptions
   ): Promise<EntityType>;
   delete(id: EntityKey, options: IAutoCrudOptions): Promise<EntityType>;
-  create(entity: EntityKey, options: IAutoCrudOptions): Promise<EntityType>;
+  create(entity: EntityType, options: IAutoCrudOptions): Promise<EntityType>;
 }

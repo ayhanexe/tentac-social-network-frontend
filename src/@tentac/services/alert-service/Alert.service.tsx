@@ -4,8 +4,8 @@ import IAlertService, { IAlertOptions } from "./Alert.types";
 export default class AlertService implements IAlertService {
   async Success<T = void>(
     options: IAlertOptions,
-    callback?: () => {} | Promise<T>,
-    errorCallback?: () => {} | Promise<T>
+    callback?: (data?:any) => {} | Promise<T>,
+    errorCallback?: (data?:any) => {} | Promise<T>
   ): Promise<void> {
     await Swal.fire({
       ...options,
@@ -16,8 +16,8 @@ export default class AlertService implements IAlertService {
   }
   async Error<T = void>(
     options: IAlertOptions,
-    callback?: () => {} | Promise<T>,
-    errorCallback?: () => {} | Promise<T>
+    callback?: (data?:any) => {} | Promise<T>,
+    errorCallback?: (data?:any) => {} | Promise<T>
   ): Promise<void> {
     await Swal.fire({
       ...options,
@@ -28,8 +28,8 @@ export default class AlertService implements IAlertService {
   }
   async Warning<T = void>(
     options: IAlertOptions,
-    callback?: () => {} | Promise<T>,
-    errorCallback?: () => {} | Promise<T>
+    callback?: (data?:any) => {} | Promise<T>,
+    errorCallback?: (data?:any) => {} | Promise<T>
   ): Promise<void> {
     await Swal.fire({
       ...options,
@@ -40,8 +40,8 @@ export default class AlertService implements IAlertService {
   }
   async Information<T = void>(
     options: IAlertOptions,
-    callback?: () => {} | Promise<T>,
-    errorCallback?: () => {} | Promise<T>
+    callback?: (data?:any) => {} | Promise<T>,
+    errorCallback?: (data?:any) => {} | Promise<T>
   ): Promise<void> {
     await Swal.fire({
       ...options,
@@ -52,8 +52,8 @@ export default class AlertService implements IAlertService {
   }
   async Question<T = void>(
     options: IAlertOptions,
-    callback?: () => {} | Promise<T>,
-    errorCallback?: () => {} | Promise<T>
+    callback?: (data?:any) => {} | Promise<T>,
+    errorCallback?: (data?:any) => {} | Promise<T>
   ): Promise<void> {
     await Swal.fire({
       ...options,
@@ -64,8 +64,8 @@ export default class AlertService implements IAlertService {
   }
   async Normal<T = void>(
     options: IAlertOptions,
-    callback?: () => {} | Promise<T>,
-    errorCallback?: () => {} | Promise<T>
+    callback?: (data?:any) => {} | Promise<T>,
+    errorCallback?: (data?:any) => {} | Promise<T>
   ): Promise<void> {
     await Swal.fire({
       ...options,

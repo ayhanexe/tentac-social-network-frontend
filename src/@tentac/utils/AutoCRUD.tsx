@@ -49,12 +49,12 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
       const response = await axios.put<EntityType>(
         path.join(`${this.apiUrl}`, `${id}`),
         {
-          ...entity
+          ...entity,
         },
         {
           headers: {
             Authorization: `Bearer ${options?.bearerToken}`,
-            token: `${options.token}`
+            token: `${options.token}`,
           },
         }
       );
@@ -64,10 +64,34 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
       throw new Error(exception);
     }
   }
-  delete(id: EntityKey, options: IAutoCrudOptions): Promise<EntityType> {
-    throw new Error("Method not implemented.");
+  async delete(id: EntityKey, options: IAutoCrudOptions): Promise<EntityType> {
+    try {
+      const response = await axios.delete(path.join(`${this.apiUrl}`, `${id}`), {
+        headers: {
+          Authorization: `Bearer ${options?.bearerToken}`,
+          token: `${options.token}`,
+        },
+      })
+
+      return response.data as EntityType;
+    } catch (exception: any) {
+      throw new Error(exception);
+    }
   }
-  create(entity: EntityKey, options: IAutoCrudOptions): Promise<EntityType> {
-    throw new Error("Method not implemented.");
+  async create(entity: EntityType, options: IAutoCrudOptions): Promise<EntityType> {
+    try {
+      const response = await axios.post(this.apiUrl, {
+        ...entity
+      }, {
+        headers: {
+          Authorization: `Bearer ${options?.bearerToken}`,
+          token: `${options.token}`,
+        },
+      })
+
+      return response.data as EntityType;
+    } catch (exception: any) {
+      throw new Error(exception);
+    }
   }
 }
