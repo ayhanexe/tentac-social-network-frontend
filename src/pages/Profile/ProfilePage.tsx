@@ -1,61 +1,69 @@
-import { sortBy } from "lodash";
 import path from "path-browserify";
-import { BaseSyntheticEvent, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { BaseSyntheticEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import ChatInput from "../../@components/ChatInput/ChatInput";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
-import ReplyComponent, {
-  IPostData,
-} from "../../@components/ReplyComponent/PostComponent";
+import ReplyComponent from "../../@components/ReplyComponent/PostComponent";
 import { defaultPostLength } from "../../@tentac/constants/config.constants";
+import { AlertService } from "../../@tentac/services";
 import PostService from "../../@tentac/services/postService/PostService";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
-import { getCurrentUser } from "../../utils/Utils";
+import { getCurrentUser, removeHtmlTagsFromString } from "../../utils/Utils";
+
 import "./ProfilePage.scss";
+
+const { CKEditor } = require("@ckeditor/ckeditor5-react");
+const ClassicEditor = require("@ckeditor/ckeditor5-build-classic");
 
 export default function ProfilePage() {
   let isUnmounted = false;
 
-  const [textarea, setTextarea] = useState<string>();
+  const [textarea, setTextarea] = useState<string>("");
+  const [textAreaForLetters, settextAreaForLetters] = useState<string>("");
   const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [wallPhoto, setWallPhoto] = useState<string>();
   const [letters, setLetters] = useState<string>();
   const [posts, setPosts] = useState<IPost>();
   const [postData, setPostData] = useState<IPost[]>([]);
+  const [isInitial, setIsInitial] = useState<boolean>(true);
+  const [isFocusing, setIsFocusing] = useState<boolean>(false);
 
-  const handleTextarea = (e: BaseSyntheticEvent) =>
-    e.target.value.length <= defaultPostLength
-      ? setTextarea(e.target.value)
-      : null;
+  const alertService: AlertService = new AlertService();
 
   const handlePost = () => {
-    const postService: PostService = new PostService();
+    if (!textarea || (textarea && textarea.length == 0)) {
+      alertService.Error({
+        text: "Please type something before post!",
+      });
+    } else {
+      const postService: PostService = new PostService();
+      setTextarea("");
 
-    if (user) {
-      postService
-        .create(
-          {
-            text: `${textarea}`,
-            userId: user?.id,
-            isDeleted: false,
-          },
-          {
-            bearerToken: user.token,
-            token: user.token,
-          }
-        )
-        .then(async () => {
-          const data = await postService.getAll({
-            bearerToken: `${user.token}`,
-            token: `${user.token}`
+      if (user) {
+        postService
+          .create(
+            {
+              text: `${textarea}`,
+              userId: user?.id,
+              isDeleted: false,
+            },
+            {
+              bearerToken: user.token,
+              token: user.token,
+            }
+          )
+          .then(async () => {
+            const data = await postService.getAll({
+              bearerToken: `${user.token}`,
+              token: `${user.token}`,
+            });
+            if (data)
+              setPostData([...data.filter((d) => d.user?.id == user.id)]);
           });
-          if(data) setPostData([
-            ...data.filter(d => d.user?.id == user.id)
-          ]);
-        });
+      }
     }
   };
 
@@ -116,6 +124,8 @@ export default function ProfilePage() {
     <div className="m-5 flex flex-col gap-4">
       {user ? <Header /> : <></>}
       <main>
+        <ChatInput />
+
         <div id="wall" className="w-full rounded-lg overflow-hidden">
           <img
             src={path.join(
@@ -147,15 +157,15 @@ export default function ProfilePage() {
             )}
           </h1>
 
-          <div className="flex gap-3 items-start">
+          <div className="w-full flex gap-3 items-start">
             {/* Post Area */}
-            <div className="w-full flex flex-col">
+            <div className="flex w-full flex-col">
               <div
                 id="post-area"
                 className="w-full bg-white/90 pt-3 pb-5 px-4 rounded-xl flex flex-col gap-4"
               >
                 <h1 className="text-xl font-semibold">Post Something</h1>
-                <div className="flex gap-5">
+                <div className="flex">
                   <Profile
                     radius="60px"
                     imageUrl={profilePhoto ?? null}
@@ -164,23 +174,46 @@ export default function ProfilePage() {
                     storyBorderWidth="6px"
                     defaultIconClass="text-2xl"
                   />
-                  <div className="flex flex-col w-full items-end">
-                    <textarea
-                      id="post-textarea"
-                      placeholder="Hi all"
-                      className="outline-none w-full mt-3 font-normal"
-                      onChange={handleTextarea}
-                      value={textarea}
+                  <div className="flex flex-col w-full items-end pl-3">
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data="<p>Type something...</p>"
+                      onKeyDown={() => console.log("asdwq")}
+                      onChange={(event: any, editor: any) => {
+                        if (!isInitial || isFocusing) {
+                          const simpleText = removeHtmlTagsFromString(
+                            editor.getData()
+                          );
+                          if (simpleText.length <= defaultPostLength) {
+                            setTextarea(editor.getData());
+                            settextAreaForLetters(simpleText);
+                          } else {
+                            editor.setData(textarea);
+                          }
+                        }
+                      }}
+                      onFocus={(event: any, editor: any) => {
+                        setIsFocusing(true);
+                        setTextarea("");
+                        editor.setData(textarea);
+                      }}
+                      onBlur={(event: any, editor: any) => {
+                        setIsFocusing(false);
+                        if (textarea == "") {
+                          setTextarea("");
+                          editor.setData("Type something...");
+                        }
+                      }}
                     />
                     <div className="flex items-center w-full justify-end mt-5 gap-5">
                       <span
                         className={`${
-                          textarea?.length === defaultPostLength
+                          textAreaForLetters?.length === defaultPostLength
                             ? "text-red-600/70"
                             : ""
                         } font-medium`}
                       >
-                        {textarea?.length ?? 0}/{defaultPostLength}
+                        {textAreaForLetters?.length ?? 0}/{defaultPostLength}
                       </span>
                       <button className="text-black text-xl">
                         <i className="bi bi-paperclip"></i>

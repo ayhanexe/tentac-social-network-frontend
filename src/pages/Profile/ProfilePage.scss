@@ -24,3 +24,24 @@ main {
     }
   }
 }
+
+.ck-editor {
+  width: 100% !important;
+  border: none !important;
+  margin-right:auto !important;
+  word-break: break-all;
+}
+
+.ck-editor__top {
+  display: none !important;
+}
+
+.ck-content {
+  border: none !important;
+  box-shadow: none !important;
+  max-width: 100% !important;
+  p {
+    display:block !important;
+    max-width: 100% !important;
+  }
+}

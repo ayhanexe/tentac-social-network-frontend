@@ -9,6 +9,10 @@ export default function ClearStyleAttribute(element?: Element | null) {
   element?.setAttribute("style", "");
 }
 
+export function removeHtmlTagsFromString(text: string) {
+  return text.replace(/<\/?[^>]+(>|$)/g, "");
+}
+
 export function GetPropertyPath(
   object: { [key: string]: any },
   key: string,

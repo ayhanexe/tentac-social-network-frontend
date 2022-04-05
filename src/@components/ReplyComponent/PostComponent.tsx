@@ -96,23 +96,23 @@ export default function PostComponent(props: IPostProps) {
           </span>
           <div
             id="message-area"
-            className="bg-white w-full rounded-lg shadow-sm p-3"
+            className="bg-white w-full rounded-lg shadow-sm p-3 z-20"
           >
-            {props.data.text}
+            <div dangerouslySetInnerHTML={{ __html: props.data.text }} />
           </div>
           <div className="actions w-full flex justify-end">
             <button
               onClick={handleDelete}
-              className="post-delete-button bg-red-600/50 text-white px-2 rounded-md mt-3 cursor-pointer"
+              className="post-delete-button bg-none text-black text-sm font-medium mt-1 cursor-pointer"
             >
               Delete
             </button>
           </div>
         </div>
-        <div className="actions-container flex flex-col justify-center px-2 pt-4">
-          <i className="bi bi-hand-thumbs-up-fill cursor-pointer text-sm"></i>
-          <span className="text-sm font-medium">50</span>
-          <i className="bi bi-hand-thumbs-down-fill cursor-pointer text-sm"></i>
+        <div className="z-10 actions-container flex flex-col justify-center px-2 -mt-2">
+          <i className="bi bi-hand-thumbs-up-fill cursor-pointer text-xs"></i>
+          <span className="text-xs font-medium">50</span>
+          <i className="bi bi-hand-thumbs-down-fill cursor-pointer text-xs"></i>
         </div>
       </div>
       <div className="reply-container">

@@ -1,12 +1,21 @@
 .post-item {
   .post-delete-button {
     transition: all 0.3s ease-out;
-    transform: translateY(-10px);
     opacity: 0;
   }
 
+  .actions-container {
+    transition: all 0.3s ease-out;
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+
+  &:hover .actions-container {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+  
   &:hover .post-delete-button {
-    transform: translateY(0);
     opacity: 1;
   }
 }
