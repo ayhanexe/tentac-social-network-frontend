@@ -51,6 +51,7 @@ export default class AuthenticationService implements IAuthenticationService {
                       "profilePhotoUrl",
                       "profilePhotoName",
                       "userWall",
+                      "userPosts"
                     ]),
                     ...pick(localStore.auth, ["roles", "token"]),
                     ...pick(sessionStore.auth, ["roles", "token"]),

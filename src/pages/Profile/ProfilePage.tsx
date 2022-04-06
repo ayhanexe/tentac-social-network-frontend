@@ -4,8 +4,9 @@ import { Link } from "react-router-dom";
 import ChatInput from "../../@components/ChatInput/ChatInput";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
-import ReplyComponent from "../../@components/ReplyComponent/PostComponent";
+import PostComponent from "../../@components/ReplyComponent/PostComponent";
 import { defaultPostLength } from "../../@tentac/constants/config.constants";
+import useSignalR from "../../@tentac/contexts/SignalRContext/SignalRContext";
 import { AlertService } from "../../@tentac/services";
 import PostService from "../../@tentac/services/postService/PostService";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
@@ -19,6 +20,8 @@ const ClassicEditor = require("@ckeditor/ckeditor5-build-classic");
 
 export default function ProfilePage() {
   let isUnmounted = false;
+
+  const { invokeServerside } = useSignalR();
 
   const [textarea, setTextarea] = useState<string>("");
   const [textAreaForLetters, settextAreaForLetters] = useState<string>("");
@@ -60,6 +63,7 @@ export default function ProfilePage() {
               bearerToken: `${user.token}`,
               token: `${user.token}`,
             });
+            await invokeServerside("UserPosted", user.id);
             if (data)
               setPostData([...data.filter((d) => d.user?.id == user.id)]);
           });
@@ -234,7 +238,7 @@ export default function ProfilePage() {
               {postData.length > 0 ? (
                 postData.map((data, index) => {
                   return (
-                    <ReplyComponent
+                    <PostComponent
                       onDelete={handleDelete}
                       key={index}
                       data={data}

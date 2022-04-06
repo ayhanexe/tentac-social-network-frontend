@@ -1,35 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { HubConnectionBuilder, HubConnection } from "@microsoft/signalr";
-import path from "path-browserify";
+import React, { useState } from "react";
 
 const ChatInput = (props: any) => {
-  const [connection, setConnection] = useState<HubConnection>();
   const [user, setUser] = useState("");
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    const newConnection = new HubConnectionBuilder()
-      .withUrl(path.join(`${process.env.REACT_APP_STATIC_FILES_BASE}`, "/hubs/post"))
-      .withAutomaticReconnect()
-      .build();
-
-    if (newConnection) setConnection(newConnection);
-  }, []);
-
-  useEffect(() => {
-    if (connection) {
-      connection
-        .start()
-        .then((result) => {
-          console.log("Connected!");
-
-          connection.on("ReceiveMessage", (message) => {
-            console.log(message);
-          });
-        })
-        .catch((e) => console.log("Connection failed: ", e));
-    }
-  }, [connection]);
 
   const onSubmit = (e: any) => {
     e.preventDefault();

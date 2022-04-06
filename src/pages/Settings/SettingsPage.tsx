@@ -125,6 +125,7 @@ export default function SettingsPage() {
               "profilePhotoName",
               "userWall",
               "token",
+              "userPosts"
             ]),
             profilePhoto: user.profilePhotoName,
           },

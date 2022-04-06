@@ -56,7 +56,7 @@ export default function Header() {
       className="py-3 px-5 rounded-lg shadow-md flex justify-between"
     >
       <Link to="/" className="h-full">
-        <img src="./assets/media/tentac-logo-dark.svg" className="h-full" />
+        <img src="/assets/media/tentac-logo-dark.svg" className="h-full" />
       </Link>
 
       <div id="user-area" className="flex items-center gap-3 relative">

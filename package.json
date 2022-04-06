@@ -20,6 +20,7 @@
     "moment": "^2.29.1",
     "path-browserify": "^1.0.1",
     "react": "^17.0.2",
+    "react-app-polyfill": "^3.0.0",
     "react-dom": "^17.0.2",
     "react-error-overlay": "^6.0.10",
     "react-redux": "^7.2.6",
@@ -49,6 +50,8 @@
       "not op_mini all"
     ],
     "development": [
+      "ie 11",
+      "edge 16",
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
