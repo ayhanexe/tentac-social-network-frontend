@@ -36,7 +36,9 @@ function useSignalR(props: ISignalRContext = defaultSignalRContextProps) {
       connection
         .start()
         .then((result) => {
-          connection.on("UserPosted", (userId) => props.onUserPost(userId));
+          connection.on("UserPosted", async (userId) => {
+            await props.onUserPost(userId);
+          });
         })
         .catch((e) => console.log("Connection failed: ", e));
     }
