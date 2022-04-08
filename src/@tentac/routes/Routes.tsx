@@ -2,7 +2,6 @@ import { memo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AntiAuthRoute from "../../@components/antiAuthorizationRoute/AntiAuthRoute";
 import AuthRoute from "../../@components/authorizationRoute/AuthorizationRoute";
-import Chat from "../../Chat/Chat";
 import { AuthenticationPage } from "../../pages";
 import ExplorePage from "../../pages/Explore/ExplorePage";
 import Home from "../../pages/Home/Home";
@@ -32,7 +31,6 @@ function GeneralRoutes(props: any) {
 
   const UserDetailsRoute = memo(AuthRoute(() => <PersonDetails />));
 
-  const ChatRoute = memo(() => <Chat />);
 
   return (
     <BrowserRouter>
@@ -44,7 +42,6 @@ function GeneralRoutes(props: any) {
         <Route path="/settings" element={<SettingsRoute />} />
         <Route path="/explore" element={<ExploreRoute />} />
         <Route path="/user-details/:id" element={<UserDetailsRoute />} />
-        <Route path="/chat" element={<ChatRoute />}></Route>
       </Routes>
     </BrowserRouter>
   );

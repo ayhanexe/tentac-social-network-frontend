@@ -1,12 +1,10 @@
 import path from "path-browserify";
 import { BaseSyntheticEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import ChatInput from "../../@components/ChatInput/ChatInput";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
 import PostComponent from "../../@components/ReplyComponent/PostComponent";
 import { defaultPostLength } from "../../@tentac/constants/config.constants";
-import useSignalR from "../../@tentac/contexts/SignalRContext/SignalRContext";
 import { AlertService } from "../../@tentac/services";
 import PostService from "../../@tentac/services/postService/PostService";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
@@ -20,8 +18,6 @@ const ClassicEditor = require("@ckeditor/ckeditor5-build-classic");
 
 export default function ProfilePage() {
   let isUnmounted = false;
-
-  const { invokeServerside } = useSignalR();
 
   const [textarea, setTextarea] = useState<string>("");
   const [textAreaForLetters, settextAreaForLetters] = useState<string>("");
@@ -52,6 +48,8 @@ export default function ProfilePage() {
               text: `${textarea}`,
               userId: user?.id,
               isDeleted: false,
+              postLikes: [],
+              postReplies: [],
             },
             {
               bearerToken: user.token,
@@ -63,7 +61,6 @@ export default function ProfilePage() {
               bearerToken: `${user.token}`,
               token: `${user.token}`,
             });
-            await invokeServerside("UserPosted", user.id);
             if (data)
               setPostData([...data.filter((d) => d.user?.id == user.id)]);
           });
@@ -128,8 +125,6 @@ export default function ProfilePage() {
     <div className="m-5 flex flex-col gap-4">
       {user ? <Header /> : <></>}
       <main>
-        <ChatInput />
-
         <div id="wall" className="w-full rounded-lg overflow-hidden">
           <img
             src={path.join(

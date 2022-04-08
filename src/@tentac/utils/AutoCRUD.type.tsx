@@ -1,6 +1,9 @@
 export interface IAutoCrudOptions {
   bearerToken?: string;
   token?: string;
+  success?: (...args: any) => any;
+  fail?: (...args: any) => any;
+  finally?: (...args: any) => any;
 }
 
 export interface IAutoCRUD<EntityType, EntityKey> {

@@ -9,4 +9,6 @@ export interface IPost {
   createDate?: string;
   deleteDate?: string | null;
   lastModificationDate?: string | null;
+  postLikes: any[];
+  postReplies: any[];
 }

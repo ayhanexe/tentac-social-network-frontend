@@ -13,11 +13,21 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
 
   async getAll(options?: IAutoCrudOptions): Promise<EntityType[]> {
     try {
-      const response = await axios.get<EntityType[]>(`${this.apiUrl}`, {
-        headers: {
-          Authorization: `Bearer ${options?.bearerToken}`,
-        },
-      });
+      const response = await axios
+        .get<EntityType[]>(`${this.apiUrl}`, {
+          headers: {
+            Authorization: `Bearer ${options?.bearerToken}`,
+          },
+        })
+        .then(async (data: any) => {
+          await options?.success?.call(data, this);
+          return data;
+        })
+        .catch(async (error) => {
+          await options?.fail?.call(error, this);
+          return error;
+        })
+        .finally(async () => await options?.finally?.call(this));
 
       return response.data as EntityType[];
     } catch (exception: any) {
@@ -26,14 +36,21 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
   }
   async get(id: EntityKey, options: IAutoCrudOptions): Promise<EntityType> {
     try {
-      const response = await axios.get<EntityType>(
-        path.join(`${this.apiUrl}`, `${id}`),
-        {
+      const response = await axios
+        .get<EntityType>(path.join(`${this.apiUrl}`, `${id}`), {
           headers: {
             Authorization: `Bearer ${options?.bearerToken}`,
           },
-        }
-      );
+        })
+        .then(async (data: any) => {
+          await options?.success?.call(data, this);
+          return data;
+        })
+        .catch(async (error) => {
+          await options?.fail?.call(error, this);
+          return error;
+        })
+        .finally(async () => await options?.finally?.call(this));
 
       return response.data as EntityType;
     } catch (exception: any) {
@@ -46,18 +63,28 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
     options: IAutoCrudOptions
   ): Promise<EntityType> {
     try {
-      const response = await axios.put<EntityType>(
-        path.join(`${this.apiUrl}`, `${id}`),
-        {
-          ...entity,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${options?.bearerToken}`,
-            token: `${options.token}`,
+      const response = await axios
+        .put<EntityType>(
+          path.join(`${this.apiUrl}`, `${id}`),
+          {
+            ...entity,
           },
-        }
-      );
+          {
+            headers: {
+              Authorization: `Bearer ${options?.bearerToken}`,
+              token: `${options.token}`,
+            },
+          }
+        )
+        .then(async (data: any) => {
+          await options?.success?.call(data, this);
+          return data;
+        })
+        .catch(async (error) => {
+          await options?.fail?.call(error, this);
+          return error;
+        })
+        .finally(async () => await options?.finally?.call(this));
 
       return response.data as EntityType;
     } catch (exception: any) {
@@ -66,29 +93,55 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
   }
   async delete(id: EntityKey, options: IAutoCrudOptions): Promise<EntityType> {
     try {
-      const response = await axios.delete(path.join(`${this.apiUrl}`, `${id}`), {
-        headers: {
-          Authorization: `Bearer ${options?.bearerToken}`,
-          token: `${options.token}`,
-        },
-      })
+      const response = await axios
+        .delete(path.join(`${this.apiUrl}`, `${id}`), {
+          headers: {
+            Authorization: `Bearer ${options?.bearerToken}`,
+            token: `${options.token}`,
+          },
+        })
+        .then(async (data: any) => {
+          await options?.success?.call(data, this);
+          return data;
+        })
+        .catch(async (error) => {
+          await options?.fail?.call(error, this);
+          return error;
+        })
+        .finally(async () => await options?.finally?.call(this));
 
       return response.data as EntityType;
     } catch (exception: any) {
       throw new Error(exception);
     }
   }
-  async create(entity: EntityType, options: IAutoCrudOptions): Promise<EntityType> {
+  async create(
+    entity: EntityType,
+    options: IAutoCrudOptions
+  ): Promise<EntityType> {
     try {
-      const response = await axios.post(this.apiUrl, {
-        ...entity
-      }, {
-        headers: {
-          Authorization: `Bearer ${options?.bearerToken}`,
-          token: `${options.token}`,
-        },
-      })
-
+      const response = await axios
+        .post(
+          this.apiUrl,
+          {
+            ...entity,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${options?.bearerToken}`,
+              token: `${options.token}`,
+            },
+          }
+        )
+        .then(async (data: any) => {
+          await options?.success?.call(data, this);
+          return data;
+        })
+        .catch(async (error) => {
+          await options?.fail?.call(error, this);
+          return error;
+        })
+        .finally(async () => await options?.finally?.call(this));
       return response.data as EntityType;
     } catch (exception: any) {
       throw new Error(exception);

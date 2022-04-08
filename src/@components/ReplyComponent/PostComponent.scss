@@ -1,21 +1,41 @@
+.parent-post-item :hover {
+  .parent-actions-container {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+  .post-delete-button {
+    opacity: 1;
+  }
+}
+
 .post-item {
   .post-delete-button {
     transition: all 0.3s ease-out;
     opacity: 0;
   }
 
+  .parent-actions-container,
   .actions-container {
     transition: all 0.3s ease-out;
     transform: translateX(-30px);
     opacity: 0;
   }
 
-  &:hover .actions-container {
-    transform: translateX(0px);
-    opacity: 1;
-  }
-  
-  &:hover .post-delete-button {
-    opacity: 1;
+  .reply-container {
+    .post-item {
+      max-width: 70%;
+      margin-left: auto;
+      .reply-item-text {
+        width: 100%;
+        * {
+          display: inline !important;
+          word-break: break-all;
+        }
+      }
+      &:hover .actions-container {
+        transform: translateX(0px);
+        opacity: 1;
+      }
+    }
   }
 }

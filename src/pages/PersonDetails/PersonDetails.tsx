@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
 import PostComponent from "../../@components/ReplyComponent/PostComponent";
-import SignalRService from "../../@tentac/services/signalR-service/signalr-service";
 import UserService from "../../@tentac/services/user-service/user-service";
 import { IAuthUser, IBackendUser } from "../../@tentac/types/auth/authTypes";
 import { getCurrentUser, makeAssetUrl } from "../../utils/Utils";
@@ -18,13 +17,6 @@ function PersonDetails() {
   const [user, setUser] = useState<IAuthUser>();
   const [profileUser, setProfileUser] = useState<IBackendUser>();
   const userService: UserService = new UserService();
-  const signalRService: SignalRService = new SignalRService({
-    onUserPosted: (userId: string) => console.log(userId),
-  });
-
-  useEffect(() => {
-    signalRService.connect();
-  }, []);
 
   useEffect(() => {
     (async () => {
