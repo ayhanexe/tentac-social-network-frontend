@@ -51,8 +51,6 @@ export default function PostComponent(props: IPostProps) {
   const [isInitial, setIsInitial] = useState<boolean>(true);
   const [isFocusing, setIsFocusing] = useState<boolean>(false);
 
-  console.log(props);
-
   const handleLike = async (e: BaseSyntheticEvent, data: any) => {
     const likeTextElement = e.target.parentNode.querySelector(".post-likes");
     const likeText = likeTextElement.textContent;
@@ -96,7 +94,6 @@ export default function PostComponent(props: IPostProps) {
     const likeText = likeTextElement.textContent;
 
     if (postData && postData.id && isNumber(postData.id) && authUser) {
-      console.log("QWEq");
       postService.likeReply(Number(postData.id), data.id, authUser.id, {
         bearerToken: `${authUser.token}`,
         token: `${authUser.token}`,
@@ -115,8 +112,8 @@ export default function PostComponent(props: IPostProps) {
     const likeTextElement = e.target.parentNode.querySelector(".post-likes");
     const likeText = likeTextElement.textContent;
 
-    if ((isNumber(postData), authUser)) {
-      postService.dislikePost(Number(postData?.id), authUser.id, {
+    if (postData && postData.id && isNumber(postData.id) && authUser) {
+      postService.dislikeReply(Number(postData.id), data.id, authUser.id, {
         bearerToken: `${authUser.token}`,
         token: `${authUser.token}`,
         success: (data) => {
@@ -218,7 +215,7 @@ export default function PostComponent(props: IPostProps) {
         if (p.user.id == authUser.id) return p;
       });
 
-      if (post && reply.length > 0) {
+      if (post && reply?.length > 0) {
         alertService.Warning(
           {
             text: "Warning deleting post! Are you sure?",
@@ -274,12 +271,15 @@ export default function PostComponent(props: IPostProps) {
             imageUrl={
               postData?.user.profilePhotoUrl
                 ? postData?.user.profilePhotoUrl
-                : path.join(
+                : postData?.user.profilePhotoName ||
+                  postData?.user.profilePhotoName
+                ? path.join(
                     `${process.env.REACT_APP_STATIC_FILES_BASE}`,
                     "media/profiles",
                     `${postData?.user.profilePhoto}` ??
                       `${postData?.user.profilePhotoName}`
                   )
+                : null
             }
             letters={postData?.user?.letters}
             storyBorderWidth="6px"
@@ -321,7 +321,8 @@ export default function PostComponent(props: IPostProps) {
             className="bi bi-hand-thumbs-up-fill cursor-pointer text-xs"
           ></i>
           <span className="post-likes text-xs font-medium">
-            {postData?.postLikes.length ?? 0}
+
+            {postData?.postLikes?.length ?? 0}
           </span>
           <i
             onClick={(e) => handleDislike(e, postData)}
@@ -340,13 +341,16 @@ export default function PostComponent(props: IPostProps) {
                   imageUrl={
                     postData?.user.profilePhotoUrl
                       ? postData?.user.profilePhotoUrl
-                      : path.join(
+                      : postData?.user.profilePhoto ||
+                        postData?.user.profilePhotoName
+                      ? path.join(
                           `${process.env.REACT_APP_STATIC_FILES_BASE}`,
                           "media/profiles",
                           postData?.user.profilePhoto ??
                             postData?.user.profilePhotoName ??
                             ""
                         )
+                      : null
                   }
                   letters={postData?.user?.letters}
                   storyBorderWidth="6px"
@@ -369,7 +373,7 @@ export default function PostComponent(props: IPostProps) {
                         const simpleText = removeHtmlTagsFromString(
                           editor.getData()
                         );
-                        if (simpleText.length <= defaultPostLength) {
+                        if (simpleText?.length <= defaultPostLength) {
                           setTextarea(editor.getData());
                         } else {
                           editor.setData(textarea);
@@ -412,7 +416,7 @@ export default function PostComponent(props: IPostProps) {
             </div>
           </div>
         ) : null}
-        {postData && postData.postReplies.length > 0
+        {postData && postData.postReplies?.length > 0
           ? postData?.postReplies.map((data: any, index: number) => {
               return (
                 <div
@@ -426,9 +430,9 @@ export default function PostComponent(props: IPostProps) {
                       <Profile
                         radius="60px"
                         imageUrl={
-                          postData?.user.profilePhotoUrl
-                            ? postData?.user.profilePhotoUrl
-                            : data.user.profilePhoto
+                          postData?.user?.profilePhotoUrl
+                            ? postData?.user?.profilePhotoUrl
+                            : data?.user?.profilePhoto
                             ? path.join(
                                 `${process.env.REACT_APP_STATIC_FILES_BASE}`,
                                 "media/profiles",
@@ -481,7 +485,7 @@ export default function PostComponent(props: IPostProps) {
                         className="bi bi-hand-thumbs-up-fill cursor-pointer text-xs"
                       ></i>
                       <span className="post-likes text-xs font-medium">
-                        {data.postLikes.length}
+                        {data.postLikes?.length ?? 0}
                       </span>
                       <i
                         onClick={(e) => handleReplyDislike(e, data)}

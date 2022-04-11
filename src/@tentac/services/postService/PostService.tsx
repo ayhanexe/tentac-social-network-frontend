@@ -111,6 +111,7 @@ export default class PostService extends AutoCRUD<IPost, number> {
 
   async dislikeReply(
     postId: number,
+    replyId: number,
     userId: string,
     options: IAutoCrudOptions
   ) {
@@ -120,6 +121,7 @@ export default class PostService extends AutoCRUD<IPost, number> {
           path.join(`${this.apiUrl}`, "dislikeReply", `${postId}`),
           {
             userId,
+            replyId,
           },
           {
             headers: {

@@ -28,8 +28,9 @@ function PersonDetails() {
         const user = await userService.get(id, {
           bearerToken: authUser.token,
           token: authUser.token,
+          success: (data)=> console.log(data.data.userPosts)
         });
-
+        
         if (user && !isUnmounted) setProfileUser(user);
       }
     })();
@@ -75,16 +76,20 @@ function PersonDetails() {
             </h1>
           </div>
           <div className="flex flex-col">
-            {profileUser.userPosts.map((data: any, index: number) => {
-              return (
-                <PostComponent
-                  key={index}
-                  data={merge(data.post, {
-                    user: profileUser,
-                  })}
-                />
-              );
-            })}
+            {profileUser.userPosts.length > 0 ? (
+              profileUser.userPosts.map((data: any, index: number) => {
+                return (
+                  <PostComponent
+                    key={index}
+                    data={merge(data.post, {
+                      user: profileUser,
+                    })}
+                  />
+                );
+              })
+            ) : (
+              <h1 className="text-center text-4xl font-medium text-stone-900/30">There is no post yet!</h1>
+            )}
           </div>
         </div>
       ) : (

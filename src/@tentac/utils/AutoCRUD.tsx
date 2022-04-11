@@ -20,7 +20,7 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
           },
         })
         .then(async (data: any) => {
-          await options?.success?.call(data, this);
+          await options?.success?.call(this, data);
           return data;
         })
         .catch(async (error) => {
@@ -43,7 +43,7 @@ export default abstract class AutoCRUD<EntityType, EntityKey>
           },
         })
         .then(async (data: any) => {
-          await options?.success?.call(data, this);
+          await options?.success?.call(this, data);
           return data;
         })
         .catch(async (error) => {

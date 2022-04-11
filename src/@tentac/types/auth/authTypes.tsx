@@ -27,7 +27,7 @@ export interface IAuthUser {
   roles: string[];
   profilePhotoUrl: string | null;
   profilePhotoName: string | null;
-  userPosts: [],
+  userPosts: any[],
   userWall: string | null;
   token: string;
   letters?: string;
@@ -73,7 +73,7 @@ export interface IBackendUser {
   roles: string[];
   profilePhoto: string | null;
   userWall: string | null;
-  userPosts: [],
+  userPosts: any[],
   token: string;
   letters?: string;
   birthDate?: string | Date | null;
