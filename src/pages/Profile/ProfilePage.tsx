@@ -10,6 +10,7 @@ import PostService from "../../@tentac/services/postService/PostService";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
 import { getCurrentUser, removeHtmlTagsFromString } from "../../utils/Utils";
+import * as ConfigConstants from "../../@tentac/constants/config.constants";
 
 import "./ProfilePage.scss";
 
@@ -121,7 +122,7 @@ export default function ProfilePage() {
     }
   }, [user]);
 
-  return (
+  return user ? (
     <div className="m-5 flex flex-col gap-4">
       {user ? <Header /> : <></>}
       <main>
@@ -130,7 +131,7 @@ export default function ProfilePage() {
             src={path.join(
               `${process.env.REACT_APP_STATIC_FILES_BASE}`,
               `media/walls`,
-              `${wallPhoto}`
+              `${wallPhoto ?? ConfigConstants.defaultWallPhotoName}`
             )}
             className="w-full h-full object-cover"
             alt=""
@@ -250,9 +251,10 @@ export default function ProfilePage() {
               )}
             </div>
             {/* Post Area End */}
+
             <div
               id="recommendations"
-              className="w-1/3 bg-white rounded-md p-3 flex flex-col"
+              className="w-1/3 bg-white rounded-md p-3 hidden lg:flex flex-col"
             >
               <h1 className="text-xl font-semibold">Recommendations</h1>
 
@@ -300,5 +302,7 @@ export default function ProfilePage() {
       </main>
       <footer></footer>
     </div>
+  ) : (
+    <h1>Loading...</h1>
   );
 }

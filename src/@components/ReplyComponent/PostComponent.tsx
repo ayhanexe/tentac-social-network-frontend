@@ -297,22 +297,22 @@ export default function PostComponent(props: IPostProps) {
             <div dangerouslySetInnerHTML={{ __html: `${postData?.text}` }} />
           </div>
           <div className="actions w-full flex justify-end">
-            {authUser && postData?.user.id == authUser.id ? (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleReply}
-                  className="post-delete-button bg-none text-black text-sm font-medium mt-1 cursor-pointer"
-                >
-                  Reply
-                </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleReply}
+                className="post-delete-button bg-none text-black text-sm font-medium mt-1 cursor-pointer"
+              >
+                Reply
+              </button>
+              {authUser && postData?.user.id == authUser.id ? (
                 <button
                   onClick={handleDelete}
                   className="post-delete-button bg-none text-black text-sm font-medium mt-1 cursor-pointer"
                 >
                   Delete
                 </button>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
         </div>
         <div className="z-10 parent-actions-container flex flex-col justify-center px-2 -mt-2">
@@ -321,7 +321,6 @@ export default function PostComponent(props: IPostProps) {
             className="bi bi-hand-thumbs-up-fill cursor-pointer text-xs"
           ></i>
           <span className="post-likes text-xs font-medium">
-
             {postData?.postLikes?.length ?? 0}
           </span>
           <i
@@ -339,16 +338,11 @@ export default function PostComponent(props: IPostProps) {
                 <Profile
                   radius="60px"
                   imageUrl={
-                    postData?.user.profilePhotoUrl
-                      ? postData?.user.profilePhotoUrl
-                      : postData?.user.profilePhoto ||
-                        postData?.user.profilePhotoName
+                    authUser?.profilePhotoUrl ?? authUser?.profilePhotoName
                       ? path.join(
                           `${process.env.REACT_APP_STATIC_FILES_BASE}`,
                           "media/profiles",
-                          postData?.user.profilePhoto ??
-                            postData?.user.profilePhotoName ??
-                            ""
+                          authUser.profilePhotoName ?? ""
                         )
                       : null
                   }
@@ -359,7 +353,7 @@ export default function PostComponent(props: IPostProps) {
               </div>
               <div className="flex flex-col ml-4 w-full">
                 <span className="text-sm font-medium mb-1 cursor-pointer">
-                  @{postData?.user?.userName}
+                  @{authUser?.userName}
                 </span>
                 <div
                   id="message-area"
@@ -395,22 +389,22 @@ export default function PostComponent(props: IPostProps) {
                   />
                 </div>
                 <div className="actions w-full flex justify-end">
-                  {authUser && postData?.user.id == authUser.id ? (
-                    <div className="flex gap-3">
+                  <div className="flex gap-3">
+                    {authUser && postData?.user.id == authUser.id ? (
                       <button
                         onClick={handleDeleteReply}
                         className="post-delete-button bg-none text-black text-sm font-medium mt-1 cursor-pointer"
                       >
                         Delete
                       </button>
-                      <button
-                        onClick={async () => await handleCommentPost()}
-                        className="bg-blue-700 px-3 py-1 rounded-md text-xs text-white font-medium mt-1 cursor-pointer"
-                      >
-                        Reply
-                      </button>
-                    </div>
-                  ) : null}
+                    ) : null}
+                    <button
+                      onClick={async () => await handleCommentPost()}
+                      className="bg-blue-700 px-3 py-1 rounded-md text-xs text-white font-medium mt-1 cursor-pointer"
+                    >
+                      Reply
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -465,7 +459,7 @@ export default function PostComponent(props: IPostProps) {
                         />
                       </div>
                       <div className="actions w-full flex justify-end">
-                        {authUser && postData?.user.id == authUser.id ? (
+                        {authUser && data?.user.id == authUser.id ? (
                           <button
                             onClick={() => {
                               if (postData && postData.id) {

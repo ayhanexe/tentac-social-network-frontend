@@ -28,7 +28,6 @@
       .reply-item-text {
         width: 100%;
         * {
-          display: inline !important;
           word-break: break-all;
         }
       }
@@ -38,4 +37,9 @@
       }
     }
   }
+}
+
+
+#recommendations {
+  max-width:350px;
 }

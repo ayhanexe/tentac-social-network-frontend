@@ -5,6 +5,8 @@ import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { Link } from "react-router-dom";
 import { getCurrentUser } from "../../utils/Utils";
 import Profile from "../Profile/Profile";
+import axios from "axios";
+import path from "path-browserify";
 
 export default function Header() {
   let unmounted = false;
@@ -13,6 +15,7 @@ export default function Header() {
   const [dropdownState, setDropdownState] = useState<boolean>(false);
   const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
+  const [friendRequests, setFriendRequests] = useState();
 
   const handleDropdownToggle = () =>
     !unmounted ? setDropdownState(!dropdownState) : null;
@@ -39,6 +42,8 @@ export default function Header() {
 
       (async () => {
         const _user = await getCurrentUser();
+        const _friendRequests = await axios.get(path.join(`${process.env.REACT_APP_API_BASE}`, 'userFriendRequests'));
+        console.log(_friendRequests)
         if (_user) {
           if (!unmounted) setUser(_user);
         }
@@ -60,6 +65,15 @@ export default function Header() {
       </Link>
 
       <div id="user-area" className="flex items-center gap-3 relative">
+        <div className="relative">
+          <i className="bi bi-bell-fill text-xl text-gray-900/90 cursor-pointer"></i>
+          <div
+            id="notification-dropdown"
+            className="bg-white rounded-md absolute shadow-md flex flex-col"
+          >
+            <a href="#">wqewqe</a>
+          </div>
+        </div>
         {user ? (
           <div id="message">
             {user.name

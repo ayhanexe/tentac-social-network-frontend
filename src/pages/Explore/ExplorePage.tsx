@@ -8,6 +8,7 @@ import {
   IUserInfo,
 } from "../../@tentac/types/auth/authTypes";
 import { getCurrentUser, makeAssetUrl } from "../../utils/Utils";
+import * as ConfigConstants from "../../@tentac/constants/config.constants";
 import "./ExplorePage.scss";
 
 export default function ExplorePage() {
@@ -44,19 +45,25 @@ export default function ExplorePage() {
       <Header />
       <div className="profiles-container py-5 flex justify-center">
         {users?.length == 0 ? (
-          <h1 className="w-full text-center text-3xl my-10 font-bold">Heçkim tapılmadı :/</h1>
+          <h1 className="w-full text-center text-3xl my-10 font-bold">
+            Heçkim tapılmadı :/
+          </h1>
         ) : (
           users?.map((user, index) => (
             <Link to={`/user-details/${user.id}`} key={index}>
               <div className="profile-item relative shadow-lg">
-                <div className="image-container w-full h-full relative rounded-md overflow-hidden">
-                  <img
-                    src={`${makeAssetUrl(
-                      `${user.profilePhoto}`,
-                      `media/profiles`
-                    )}`}
-                    className="w-full h-full object-cover absolute top-0 left-0 z-20"
-                  />
+                <div className="image-container w-full h-full relative rounded-md overflow-hidden flex justify-center items-center">
+                  {user.profilePhoto ? (
+                    <img
+                      src={makeAssetUrl(
+                        `${user.profilePhoto}`,
+                        `media/profiles`
+                      )}
+                      className="w-full h-full object-cover absolute top-0 left-0 z-20"
+                    />
+                  ) : (
+                    <i className="bi bi-people-fill text-4xl" />
+                  )}
                 </div>
                 <span className="z-10 absolute -bottom-2 text-center w-full translate-y-full text-md font-medium">
                   {user.name} {user.surname}

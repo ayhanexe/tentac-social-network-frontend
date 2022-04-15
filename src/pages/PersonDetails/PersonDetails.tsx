@@ -5,8 +5,10 @@ import { useParams } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
 import PostComponent from "../../@components/ReplyComponent/PostComponent";
+import PostService from "../../@tentac/services/postService/PostService";
 import UserService from "../../@tentac/services/user-service/user-service";
 import { IAuthUser, IBackendUser } from "../../@tentac/types/auth/authTypes";
+import { IPost } from "../../@tentac/types/auth/userTypes";
 import { getCurrentUser, makeAssetUrl } from "../../utils/Utils";
 
 import "./PersonDetails.scss";
@@ -16,7 +18,9 @@ function PersonDetails() {
   const { id } = useParams();
   const [user, setUser] = useState<IAuthUser>();
   const [profileUser, setProfileUser] = useState<IBackendUser>();
+  const [posts, setPosts] = useState<IPost[]>([]);
   const userService: UserService = new UserService();
+  const postService: PostService = new PostService();
 
   useEffect(() => {
     (async () => {
@@ -25,12 +29,16 @@ function PersonDetails() {
       if (authUser && !isUnmounted && id) {
         setUser(authUser);
 
+        const posts = await postService.getAll({
+          bearerToken: `${authUser.token}`,
+        });
+        setPosts(posts.filter((post) => post.user.id == id));
+
         const user = await userService.get(id, {
           bearerToken: authUser.token,
           token: authUser.token,
-          success: (data)=> console.log(data.data.userPosts)
         });
-        
+
         if (user && !isUnmounted) setProfileUser(user);
       }
     })();
@@ -56,8 +64,12 @@ function PersonDetails() {
             <Profile
               radius="250px"
               imageUrl={
-                makeAssetUrl(`${profileUser.profilePhoto}`, "media/profiles") ??
-                null
+                profileUser.profilePhoto
+                  ? makeAssetUrl(
+                      `${profileUser.profilePhoto}`,
+                      "media/profiles"
+                    )
+                  : null
               }
               letters={profileUser.letters}
               circleClass="-translate-y-1/4 ml-10 shadow-lg z-10"
@@ -76,24 +88,24 @@ function PersonDetails() {
             </h1>
           </div>
           <div className="flex flex-col">
-            {profileUser.userPosts.length > 0 ? (
-              profileUser.userPosts.map((data: any, index: number) => {
+            {posts.length > 0 ? (
+              posts.map((data: any, index: number) => {
                 return (
                   <PostComponent
                     key={index}
-                    data={merge(data.post, {
-                      user: profileUser,
-                    })}
+                    data={{ ...data, user: profileUser }}
                   />
                 );
               })
             ) : (
-              <h1 className="text-center text-4xl font-medium text-stone-900/30">There is no post yet!</h1>
+              <h1 className="text-center text-4xl font-medium text-stone-900/30">
+                There is no post yet!
+              </h1>
             )}
           </div>
         </div>
       ) : (
-        <h1>sdasdas</h1>
+        <h1>Loading...</h1>
       )}
     </div>
   );
