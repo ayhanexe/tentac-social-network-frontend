@@ -42,8 +42,9 @@ export default function Header() {
 
       (async () => {
         const _user = await getCurrentUser();
-        const _friendRequests = await axios.get(path.join(`${process.env.REACT_APP_API_BASE}`, 'userFriendRequests'));
-        console.log(_friendRequests)
+        const _friendRequests = await axios.get(
+          path.join(`${process.env.REACT_APP_API_BASE}`, "userFriendRequests")
+        );
         if (_user) {
           if (!unmounted) setUser(_user);
         }

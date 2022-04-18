@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authenticationServiceReducer from "../services/authentication-service/state/Authentication.slice";
+import popupServiceReducer from "../services/popup-alert-service/state/Popup.slice";
 
 export const store = configureStore({
   preloadedState: {
@@ -9,6 +10,7 @@ export const store = configureStore({
   },
   reducer: {
     auth: authenticationServiceReducer,
+    popup: popupServiceReducer,
   },
 });
 

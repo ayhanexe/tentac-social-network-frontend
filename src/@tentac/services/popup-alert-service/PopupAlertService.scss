@@ -1,0 +1,32 @@
+.popup-wrapper {
+  animation: startAnimation 0.3s ease-out 0.3s 1 forwards;
+
+  .popup-element {
+    min-width: 400px;
+    min-height: 200px;
+    max-width:calc(100% - 20px);
+
+    &.from-bottom {
+      transform: translateX(-50%) translateY(100%);
+      animation: elementFromBottomToTop 0.15s ease-out 0.3s 1 forwards;
+    }
+  }
+}
+
+@keyframes startAnimation {
+  from {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@keyframes elementFromBottomToTop {
+  from {
+    transform: translateY(100%) translateX(-50%);
+  }
+  to {
+    transform: translateY(0%) translateX(-50%);
+  }
+}
