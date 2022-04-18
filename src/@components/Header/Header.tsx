@@ -11,17 +11,33 @@ import path from "path-browserify";
 export default function Header() {
   let unmounted = false;
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notificationDropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const bellRef = useRef<HTMLElement>(null);
   const [dropdownState, setDropdownState] = useState<boolean>(false);
+  const [notificationDropdownState, setNotificationDropdownState] =
+    useState<boolean>(false);
   const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
-  const [friendRequests, setFriendRequests] = useState();
+  const [friendRequests, setFriendRequests] = useState<any[]>([]);
+  const [friends, setFriends] = useState();
 
   const handleDropdownToggle = () =>
     !unmounted ? setDropdownState(!dropdownState) : null;
 
+  const handleNotificationDropdownToggle = () =>
+    !unmounted
+      ? setNotificationDropdownState(!notificationDropdownState)
+      : null;
+
   useEffect(() => {
-    if (user?.profilePhotoUrl) {
+    (async () => {
+      console.log("ASdas")
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (user?.profilePhotoUrl && !unmounted) {
       setProfilePhoto(user.profilePhotoUrl);
     }
   }, [user]);
@@ -29,6 +45,15 @@ export default function Header() {
   useEffect(() => {
     if (!unmounted) {
       document.addEventListener("click", (e: Event) => {
+        if (
+          notificationDropdownRef.current &&
+          bellRef.current &&
+          !e.composedPath().includes(notificationDropdownRef.current) &&
+          !e.composedPath().includes(bellRef.current) &&
+          !unmounted
+        ) {
+          setNotificationDropdownState(false);
+        }
         if (
           dropdownRef.current &&
           profileRef.current &&
@@ -42,8 +67,17 @@ export default function Header() {
 
       (async () => {
         const _user = await getCurrentUser();
-        const _friendRequests = await axios.get(path.join(`${process.env.REACT_APP_API_BASE}`, 'userFriendRequests'));
-        console.log(_friendRequests)
+        const _friendRequests = await axios.get(
+          path.join(`${process.env.REACT_APP_API_BASE}`, "userFriendRequests"),
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        if (!unmounted) setFriendRequests(_friendRequests.data);
+
         if (_user) {
           if (!unmounted) setUser(_user);
         }
@@ -66,12 +100,69 @@ export default function Header() {
 
       <div id="user-area" className="flex items-center gap-3 relative">
         <div className="relative">
-          <i className="bi bi-bell-fill text-xl text-gray-900/90 cursor-pointer"></i>
-          <div
-            id="notification-dropdown"
-            className="bg-white rounded-md absolute shadow-md flex flex-col"
+          <i
+            ref={bellRef}
+            onClick={handleNotificationDropdownToggle}
+            className="bi bi-bell-fill text-xl text-gray-900/90 cursor-pointer relative"
           >
-            <a href="#">wqewqe</a>
+            {friendRequests?.filter((d: any) => d?.user?.id != user?.id)
+              ?.length > 0 ? (
+              <div className="rounded-full notification-number bg-white absolute flex items-center justify-center text-xs not-italic font-bold">
+                {friendRequests?.length}
+              </div>
+            ) : null}
+          </i>
+          <div
+            ref={notificationDropdownRef}
+            id="notification-dropdown"
+            className={`bg-white rounded-md absolute shadow-md flex flex-col right-0 p-2 ${
+              notificationDropdownState ? "" : "hidden"
+            }`}
+          >
+            <h1 className="text-xl font-bold mb-3">Notifications</h1>
+            {/*  */}
+            {friendRequests.length == 0 ? (
+              <h1 className="font-bold text-2xl text-center mb-3 text-black/20 select-none">
+                Empty
+              </h1>
+            ) : (
+              friendRequests?.map((item: any, index: number) => {
+                return (
+                  <div
+                    key={index}
+                    className="notification-container w-full rounded-md py-5 px-2 flex flex-wrap gap-2 justify-between items-center"
+                  >
+                    <span className="select-none">
+                      <Link
+                        to={path.join(
+                          "/",
+                          path.join(
+                            "user-details",
+                            `${item?.friendRequestedUser?.id}`
+                          )
+                        )}
+                      >
+                        <b>
+                          {item?.user?.name == "" || item?.user?.surname == ""
+                            ? item?.user?.userName
+                            : `${item?.user?.name} ${item?.user?.surname}`}
+                        </b>
+                      </Link>
+                      &nbsp; sended friend request
+                    </span>
+                    <div className="flex gap-2">
+                      <button className="rounded-md bg-lime-400 px-3 py-1 font-medium">
+                        Accept
+                      </button>
+                      <button className="rounded-md bg-red-500 px-3 py-1 font-medium">
+                        Decline
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            {/*  */}
           </div>
         </div>
         {user ? (

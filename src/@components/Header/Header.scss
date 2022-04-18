@@ -25,15 +25,31 @@
       &.open {
         visibility: visible;
         opacity: 1;
-        top:60px;
+        top: 60px;
       }
     }
   }
 }
 
 #notification-dropdown {
-  width:200px;
-  height: 300px;
-  transform:translateX(-50%);
-  top:50px;
+  width: 400px;
+  max-height: 400px;
+  top: 50px;
+  overflow-y: auto;
+}
+
+.notification-container {
+  transition: background-color 0.3s ease-out;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+}
+
+.notification-number {
+  width: 20px;
+  height: 20px;
+  top: 0;
+  left: 0;
+  transform:translate(calc(-100% + 12.5px), calc(-100% + 12.5px));
+  box-shadow: 0 0 1px 2px rgba(0, 0, 0, 0.05);
 }

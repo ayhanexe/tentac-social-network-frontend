@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import UserService from "../../@tentac/services/user-service/user-service";
@@ -10,17 +10,32 @@ import {
 import { getCurrentUser, makeAssetUrl } from "../../utils/Utils";
 import * as ConfigConstants from "../../@tentac/constants/config.constants";
 import "./ExplorePage.scss";
+import axios from "axios";
+import path from "path-browserify";
 
 export default function ExplorePage() {
   let isUnmounted = false;
   const [authUser, setAuthUser] = useState<IAuthUser | null>();
   const [users, setUsers] = useState<IBackendUser[]>();
+  const [friendRequests, setFriendRequests] = useState<any[]>([]);
 
   useEffect(() => {
     let isUnmounted = false;
     const userService: UserService = new UserService();
 
     (async () => {
+      const friendRequests = await axios.get(
+        path.join(`${process.env.REACT_APP_API_BASE}`, "UserFriendRequests"),
+        {
+          headers: {
+            Authorization: `Bearer ${authUser?.token}`,
+          },
+        }
+      );
+
+      if (friendRequests.data.length > 0 && !isUnmounted)
+        setFriendRequests(friendRequests.data);
+
       const _user: IAuthUser | null = await getCurrentUser();
       if (!isUnmounted) setAuthUser(_user);
 
@@ -39,6 +54,77 @@ export default function ExplorePage() {
       isUnmounted = true;
     };
   }, []);
+
+  const handleUserUnfriendRequest = async (
+    userId: string,
+    e: BaseSyntheticEvent
+  ) => {
+    e.preventDefault();
+    const request = friendRequests.filter(
+      (f) => f?.friendRequestedUser?.id == userId && f?.user?.id == authUser?.id
+    );
+
+    if (request.length > 0) {
+      await axios
+        .delete(
+          path.join(
+            `${process.env.REACT_APP_API_BASE}`,
+            "UserFriendRequests",
+            `${request[0].id}`
+          ),
+          {
+            headers: {
+              Authorization: `Bearer ${authUser?.token}`,
+            },
+          }
+        )
+        .then(() => {
+          console.log("Request deleted successfully!");
+          if (!isUnmounted)
+            setFriendRequests({
+              ...friendRequests.filter(
+                (f) =>
+                  f?.friendRequestedUser?.id != authUser?.id &&
+                  f?.user?.id != userId
+              ),
+            });
+        })
+        .catch(() => console.log("can't delete friend request!"));
+    }
+  };
+
+  const handleUserFriendRequest = async (
+    userId: string,
+    e: BaseSyntheticEvent
+  ) => {
+    e.preventDefault();
+    await axios
+      .post(
+        path.join(`${process.env.REACT_APP_API_BASE}`, "UserFriendRequests"),
+        {
+          UserId: `${authUser?.id}`,
+          FriendId: `${userId}`,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authUser?.token}`,
+          },
+        }
+      )
+      .then(async () => {
+        console.log("Friend request sended successfully!");
+        const requests = await axios.get(
+          path.join(`${process.env.REACT_APP_API_BASE}`, "UserFriendRequests"),
+          {
+            headers: {
+              Authorization: `Bearer ${authUser?.token}`,
+            },
+          }
+        );
+        if (!isUnmounted) setFriendRequests([...requests.data]);
+      })
+      .catch(() => console.log("can't send friend request!"));
+  };
 
   return (
     <div className="p-3">
@@ -70,9 +156,34 @@ export default function ExplorePage() {
                 </span>
                 <div className="user-actions-carousel absolute right-0 top-0 z-10">
                   <div className="user-actions rounded-md flex flex-col">
-                    <button className="action-button flex items-center justify-center rounded-full">
-                      <i className="bi bi-person-plus-fill"></i>
-                    </button>
+                    {friendRequests.length > 0 ? (
+                      friendRequests?.filter(
+                        (f) =>
+                          f?.friendRequestedUser?.id == user?.id &&
+                          f?.user?.id == authUser?.id
+                      ).length > 0 ? (
+                        <button
+                          onClick={(e) => handleUserUnfriendRequest(user.id, e)}
+                          className="action-button flex items-center justify-center rounded-full"
+                        >
+                          <i className="bi bi-person-dash-fill"></i>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => handleUserFriendRequest(user.id, e)}
+                          className="action-button flex items-center justify-center rounded-full"
+                        >
+                          <i className="bi bi-person-plus-fill"></i>
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        onClick={(e) => handleUserFriendRequest(user.id, e)}
+                        className="action-button flex items-center justify-center rounded-full"
+                      >
+                        <i className="bi bi-person-plus-fill"></i>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
