@@ -32,7 +32,7 @@ export default function Header() {
 
   useEffect(() => {
     (async () => {
-      console.log("ASdas")
+      console.log("ASdas");
     })();
   }, []);
 
@@ -77,7 +77,6 @@ export default function Header() {
         );
 
         if (!unmounted) setFriendRequests(_friendRequests.data);
-
         if (_user) {
           if (!unmounted) setUser(_user);
         }

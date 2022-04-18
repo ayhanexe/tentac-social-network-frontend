@@ -1,5 +1,5 @@
 import path from "path-browserify";
-import { BaseSyntheticEvent, useEffect, useRef, useState } from "react";
+import { BaseSyntheticEvent, memo, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
@@ -11,15 +11,16 @@ import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
 import { getCurrentUser, removeHtmlTagsFromString } from "../../utils/Utils";
 import * as ConfigConstants from "../../@tentac/constants/config.constants";
-
 import "./ProfilePage.scss";
+import PopupAlertService from "../../@tentac/services/popup-alert-service/PopupAlertService";
 
 const { CKEditor } = require("@ckeditor/ckeditor5-react");
 const ClassicEditor = require("@ckeditor/ckeditor5-build-classic");
 
-export default function ProfilePage() {
+function ProfilePage() {
   let isUnmounted = false;
 
+  const [hasAlert, setHasAlert] = useState<boolean>(false);
   const [textarea, setTextarea] = useState<string>("");
   const [textAreaForLetters, settextAreaForLetters] = useState<string>("");
   const [user, setUser] = useState<IAuthUser>();
@@ -32,6 +33,9 @@ export default function ProfilePage() {
   const [isFocusing, setIsFocusing] = useState<boolean>(false);
 
   const alertService: AlertService = new AlertService();
+  const PopupService: PopupAlertService = new PopupAlertService();
+  const Alert = PopupService.Invoke();
+  console.log(Alert)
 
   const handlePost = () => {
     if (!textarea || (textarea && textarea.length == 0)) {
@@ -306,3 +310,5 @@ export default function ProfilePage() {
     <h1>Loading...</h1>
   );
 }
+
+export default memo(ProfilePage);
