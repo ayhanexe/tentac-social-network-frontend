@@ -1,5 +1,11 @@
 import path from "path-browserify";
-import { BaseSyntheticEvent, memo, useEffect, useRef, useState } from "react";
+import React, {
+  BaseSyntheticEvent,
+  memo,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Link } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
@@ -12,30 +18,67 @@ import { IPost } from "../../@tentac/types/auth/userTypes";
 import { getCurrentUser, removeHtmlTagsFromString } from "../../utils/Utils";
 import * as ConfigConstants from "../../@tentac/constants/config.constants";
 import "./ProfilePage.scss";
-import PopupAlertService from "../../@tentac/services/popup-alert-service/PopupAlertService";
-
+import PopupAlertService, {
+  IPopupAlertServiceOptions,
+} from "../../@tentac/services/popup-alert-service/PopupAlertService";
 const { CKEditor } = require("@ckeditor/ckeditor5-react");
 const ClassicEditor = require("@ckeditor/ckeditor5-build-classic");
 
 function ProfilePage() {
   let isUnmounted = false;
 
-  const [hasAlert, setHasAlert] = useState<boolean>(false);
   const [textarea, setTextarea] = useState<string>("");
   const [textAreaForLetters, settextAreaForLetters] = useState<string>("");
   const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [wallPhoto, setWallPhoto] = useState<string>();
   const [letters, setLetters] = useState<string>();
-  const [posts, setPosts] = useState<IPost>();
   const [postData, setPostData] = useState<IPost[]>([]);
   const [isInitial, setIsInitial] = useState<boolean>(true);
   const [isFocusing, setIsFocusing] = useState<boolean>(false);
+  const [hasPopup, setHasPopup] = useState<boolean>(false);
 
   const alertService: AlertService = new AlertService();
   const PopupService: PopupAlertService = new PopupAlertService();
-  const Alert = PopupService.Invoke();
-  console.log(Alert)
+
+  const Alert = PopupService.Invoke({
+    title: "Select one",
+    after: () => {
+      alert("asdasd");
+    },
+    body: (
+      <div
+        className="flex flex-col justify-center items-center align-center h-full pt-5"
+        style={{
+          flex: "1 1 100%",
+        }}
+      >
+        <a
+          target="_blank"
+          href={profilePhoto}
+          className="py-1 px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
+        >
+          See Profile Image
+        </a>
+        <Link
+          to={`/add-story/${user?.id}`}
+          className="py-1 px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
+        >
+          Set Story
+        </Link>
+      </div>
+    ),
+    footer: (
+      <div className="flex justify-center gap-3">
+        <button
+          onClick={() => PopupService.Hide()}
+          className="uppercase opacity-50 hover:opacity-100 transition-opacity duration-300 ease-out bg-rose-600 py-1 px-2 rounded-md text-white"
+        >
+          Close
+        </button>
+      </div>
+    ),
+  });
 
   const handlePost = () => {
     if (!textarea || (textarea && textarea.length == 0)) {
@@ -75,6 +118,13 @@ function ProfilePage() {
 
   const handleDelete = (data: any) => {
     setPostData([...postData.filter((d) => d.id != data.id)]);
+  };
+
+  const handleProfileClick = () => {
+    if (!isUnmounted) {
+      PopupService.Show();
+      setHasPopup(true);
+    }
   };
 
   useEffect(() => {
@@ -129,6 +179,7 @@ function ProfilePage() {
   return user ? (
     <div className="m-5 flex flex-col gap-4">
       {user ? <Header /> : <></>}
+      {hasPopup ? <Alert /> : null}
       <main>
         <div id="wall" className="w-full rounded-lg overflow-hidden">
           <img
@@ -149,6 +200,7 @@ function ProfilePage() {
           textClass="text-6xl"
           defaultIconClass="text-6xl"
           hasStory={true}
+          onClick={handleProfileClick}
         />
         <div id="content-area" className="w-full">
           <h1 className="ml-80 text-4xl font-black mb-32">
@@ -182,7 +234,6 @@ function ProfilePage() {
                     <CKEditor
                       editor={ClassicEditor}
                       data="<p>Type something...</p>"
-                      onKeyDown={() => console.log("asdwq")}
                       onChange={(event: any, editor: any) => {
                         if (!isInitial || isFocusing) {
                           const simpleText = removeHtmlTagsFromString(

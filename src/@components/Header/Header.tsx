@@ -31,12 +31,6 @@ export default function Header() {
       : null;
 
   useEffect(() => {
-    (async () => {
-      console.log("ASdas");
-    })();
-  }, []);
-
-  useEffect(() => {
     if (user?.profilePhotoUrl && !unmounted) {
       setProfilePhoto(user.profilePhotoUrl);
     }

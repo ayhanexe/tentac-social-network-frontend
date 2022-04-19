@@ -1,8 +1,6 @@
-import { merge } from "lodash";
+import { $CombinedState } from "@reduxjs/toolkit";
+import { extend, merge } from "lodash";
 import { ReactElement } from "react";
-import ReactDOM from "react-dom";
-import { RootState, store } from "../../redux/store";
-import { setShowing } from "./state/Popup.actions";
 
 export enum PopupPosition {
   TOP,
@@ -13,6 +11,8 @@ export enum PopupPosition {
 
 export interface IPopupAlertService {
   Invoke: (options: IPopupAlertServiceOptions) => void;
+  Hide: () => Promise<void>;
+  Show: () => Promise<void>;
 }
 
 export interface IPopupAlertServiceOptions {
@@ -22,6 +22,7 @@ export interface IPopupAlertServiceOptions {
   title?: string;
   positionIn?: PopupPosition;
   positionOut?: PopupPosition;
+  after?: () => any;
 }
 export interface IPopupAlertServiceOptionsConcrete {
   header: ReactElement;
@@ -30,9 +31,14 @@ export interface IPopupAlertServiceOptionsConcrete {
   title: string;
   positionIn: PopupPosition;
   positionOut: PopupPosition;
+  after: () => any;
 }
 
 export default class PopupAlertService implements IPopupAlertService {
+  constructor() {
+    document.addEventListener("click", () => {});
+  }
+
   private _defaultOptions: IPopupAlertServiceOptions = {
     header: <></>,
     body: <></>,
@@ -40,6 +46,7 @@ export default class PopupAlertService implements IPopupAlertService {
     title: "Title",
     positionIn: PopupPosition.BOTTOM,
     positionOut: PopupPosition.BOTTOM,
+    after: () => {},
   };
 
   private _getPositionClass(position: PopupPosition) {
@@ -60,24 +67,21 @@ export default class PopupAlertService implements IPopupAlertService {
   }
 
   private _fixOptions(options: IPopupAlertServiceOptions) {
-    return merge(
-      {},
-      options,
-      this._defaultOptions
+    return extend(
+      this._defaultOptions,
+      options
     ) as IPopupAlertServiceOptionsConcrete;
   }
 
   private _generatePopupElement(
     options: IPopupAlertServiceOptions = this._defaultOptions
-  ): ReactElement {
+  ): React.ComponentType {
     const fixedOptions = this._fixOptions(options);
     const fromPosition = this._getPositionClass(fixedOptions.positionIn);
     const toPosition = this._getPositionClass(fixedOptions.positionOut);
-    const _store: RootState = store.getState();
-    store.dispatch(setShowing(true));
     let startPositionClass = "bottom-0";
 
-    switch (options.positionIn) {
+    switch (fixedOptions.positionIn) {
       case PopupPosition.TOP:
         startPositionClass = "top-0 left-1/2 -translate-x-2/4";
         break;
@@ -92,49 +96,54 @@ export default class PopupAlertService implements IPopupAlertService {
         break;
     }
 
-    const wrapper = document.createElement("div");
-    wrapper.classList.add(
-      "popup-wrapper",
-      "w-full",
-      "h-full",
-      "fixed",
-      "top-0",
-      "left-0",
-      "z-50",
-      "backdrop-blur-sm",
-      "shadow-inner",
-      "transition-all",
-      "ease-out",
-      "duration-150"
-    );
-
-    const element = (
-      <div
-        className={`popup-element px-3 py-1 rounded-t-xl bg-white shadow-md fixed flex transition-all ease-out duration-150 flex-col ${startPositionClass} ${`from-${fromPosition}`} ${`to-${toPosition}`}`}
-      >
-        <h1 className="popup-title text-lg font-bold text-slate-800">
-          ${options.title}
-        </h1>
-        <div className="popup-header">{options.header}</div>
-        <div className="popup-body">{options.body}</div>
-        <div className="popup-footer">{options.footer}</div>
+    const element = () => (
+      <div className="popup-wrapper w-full h-full fixed top-0 left-0 z-50 backdrop-blur-sm shadow-inner transition-all ease-out duration-150">
+        <div
+          className={`popup-element active px-3 py-1 rounded-t-xl bg-white shadow-md fixed flex transition-all ease-out duration-150 flex-col justify-start ${startPositionClass} ${`from-${fromPosition}`} ${`to-${toPosition}`}`}
+        >
+          <h1 className="popup-title text-lg font-bold text-slate-800">
+            {options.title}
+          </h1>
+          <div className="popup-header w-full">{options.header}</div>
+          <div className="popup-body flex-grow w-full h-full">
+            {options.body}
+          </div>
+          <div className="popup-footer w-full">{options.footer}</div>
+        </div>
       </div>
     );
-
-    if (!_store.popup.isShowing) {
-      document.body.appendChild(wrapper);
-      const domWrapper = document.querySelector(".popup-wrapper");
-      if (domWrapper) {
-        // domWrapper.innerHTML = element;
-      }
-    }
 
     return element;
   }
 
+  Show(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        const popupWrappers = document.querySelectorAll(".popup-wrapper");
+
+        popupWrappers.forEach((wrapper) => {
+          wrapper.classList.remove("hidden");
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async Hide(options?: IPopupAlertServiceOptions): Promise<void> {
+    const popupWrappers = document.querySelectorAll(".popup-wrapper");
+
+    popupWrappers.forEach((wrapper) => {
+      wrapper.classList.add("hidden");
+    });
+
+    if (options?.after) await options.after();
+  }
+
   Invoke(
     options: IPopupAlertServiceOptions = this._defaultOptions
-  ): ReactElement {
-    return this._generatePopupElement(options);
+  ): React.ComponentType {
+    const Popup = this._generatePopupElement(options);
+    return Popup;
   }
 }

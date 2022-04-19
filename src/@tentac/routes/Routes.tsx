@@ -8,6 +8,7 @@ import Home from "../../pages/Home/Home";
 import Logout from "../../pages/Logout/Logout";
 import PersonDetails from "../../pages/PersonDetails/PersonDetails";
 import ProfilePage from "../../pages/Profile/ProfilePage";
+import SetStory from "../../pages/SetStory/SetStory";
 import SettingsPage from "../../pages/Settings/SettingsPage";
 
 function GeneralRoutes(props: any) {
@@ -31,6 +32,7 @@ function GeneralRoutes(props: any) {
 
   const UserDetailsRoute = memo(AuthRoute(() => <PersonDetails />));
 
+  const AddStoryRoute = memo(AuthRoute(() => <SetStory />));
 
   return (
     <BrowserRouter>
@@ -42,6 +44,7 @@ function GeneralRoutes(props: any) {
         <Route path="/settings" element={<SettingsRoute />} />
         <Route path="/explore" element={<ExploreRoute />} />
         <Route path="/user-details/:id" element={<UserDetailsRoute />} />
+        <Route path="/add-story/:id" element={<AddStoryRoute />} />
       </Routes>
     </BrowserRouter>
   );

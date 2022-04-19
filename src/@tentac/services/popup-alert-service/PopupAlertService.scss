@@ -4,11 +4,16 @@
   .popup-element {
     min-width: 400px;
     min-height: 200px;
-    max-width:calc(100% - 20px);
+    max-width: calc(100% - 20px);
+    transition: all 0.3s ease-out;
 
-    &.from-bottom {
+    &.active.from-bottom {
       transform: translateX(-50%) translateY(100%);
       animation: elementFromBottomToTop 0.15s ease-out 0.3s 1 forwards;
+    }
+
+    &.hidden-popup.to-bottom {
+      transform: translateX(-50%) translateY(100%);
     }
   }
 }
