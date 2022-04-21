@@ -51,7 +51,8 @@ export default class AuthenticationService implements IAuthenticationService {
                       "profilePhotoUrl",
                       "profilePhotoName",
                       "userWall",
-                      "userPosts"
+                      "userPosts",
+                      "userStories",
                     ]),
                     ...pick(localStore.auth, ["roles", "token"]),
                     ...pick(sessionStore.auth, ["roles", "token"]),
@@ -154,7 +155,7 @@ export default class AuthenticationService implements IAuthenticationService {
             }
           )
           .then((response) => {
-            if(response.data.hasError) {
+            if (response.data.hasError) {
               reject(response);
             }
             resolve(response.data);

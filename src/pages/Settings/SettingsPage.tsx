@@ -125,7 +125,8 @@ export default function SettingsPage() {
               "profilePhotoName",
               "userWall",
               "token",
-              "userPosts"
+              "userPosts",
+              "userStories",
             ]),
             profilePhoto: user.profilePhotoName,
           },
@@ -144,7 +145,7 @@ export default function SettingsPage() {
               birthDate: birthdate ?? user.birthDate,
               gender: gender ?? user.gender,
               tel: telephone ?? user.tel,
-              profilePhoto: user.profilePhotoName
+              profilePhoto: user.profilePhotoName,
             },
             {
               bearerToken: `${state?.user?.token}`,
@@ -168,7 +169,7 @@ export default function SettingsPage() {
                     token: user.token,
                   })
                   .then((imagePath: string) => {
-                    console.log("profile image uploaded!")
+                    console.log("profile image uploaded!");
                     dispatch(
                       addUserInfo({
                         ...user,
@@ -176,13 +177,11 @@ export default function SettingsPage() {
                           `${process.env.REACT_APP_STATIC_FILES_BASE}/media/profiles/`,
                           imagePath
                         )}`,
-                        profilePhotoName: imagePath
+                        profilePhotoName: imagePath,
                       })
                     );
                   })
-                  .catch(() => {
-
-                  });
+                  .catch(() => {});
               }
             }
 
@@ -222,8 +221,7 @@ export default function SettingsPage() {
             });
           })
           .catch((error) => {
-
-            console.log(error)
+            console.log(error);
             alertService.Error({
               text: `${error}`.replace("Error: ", ""),
             });

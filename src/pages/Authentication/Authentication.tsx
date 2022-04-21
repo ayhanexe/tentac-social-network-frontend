@@ -218,7 +218,8 @@ export default function Authentication() {
                           ),
                           profilePhotoName: user.profilePhoto,
                           userWall: user.userWall,
-                          userPosts: user.userPosts
+                          userPosts: user.userPosts,
+                          userStories: user.userStories
                         })
                       );
                     });

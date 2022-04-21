@@ -1,7 +1,6 @@
 import { IBackendUser } from "../../types/auth/authTypes";
 
 export interface IStory {
-  user: IBackendUser;
-  text: string;
+  story: { user: IBackendUser; image: string; text: string };
   id: number;
 }

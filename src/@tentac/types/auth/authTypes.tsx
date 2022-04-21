@@ -1,3 +1,5 @@
+import { IStory } from "../../services/story-service/story-service.types";
+
 enum AuthenticationTypes {
   LOGIN,
   REGISTER,
@@ -34,6 +36,7 @@ export interface IAuthUser {
   birthDate?: string | Date | null;
   gender?: number;
   tel?: string | null;
+  userStories: IStory[];
 }
 
 export interface IUserInfo {
@@ -56,6 +59,7 @@ export interface IUserInfo {
   birthDate?: string | Date | null;
   gender?: number;
   tel?: string | null;
+  userStories: IStory[];
 }
 
 export interface IBackendUser {
@@ -79,4 +83,5 @@ export interface IBackendUser {
   birthDate?: string | Date | null;
   gender?: number;
   tel?: string | null;
+  userStories: IStory[];
 }

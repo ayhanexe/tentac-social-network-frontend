@@ -28,7 +28,7 @@ main {
 .ck-editor {
   width: 100% !important;
   border: none !important;
-  margin-right:auto !important;
+  margin-right: auto !important;
   word-break: break-all;
 }
 
@@ -41,7 +41,24 @@ main {
   box-shadow: none !important;
   max-width: 100% !important;
   p {
-    display:block !important;
+    display: block !important;
     max-width: 100% !important;
+  }
+}
+
+.user-stories-wrapper {
+  .user-stories-container {
+    width: 30%;
+    max-height: 90%;
+    aspect-ratio: auto 1/1.5;
+    .story-timeline-container {
+      aspect-ratio: auto 10/0.1;
+    }
+    .story-carousel {
+      &,
+      * {
+        height: 100%;
+      }
+    }
   }
 }

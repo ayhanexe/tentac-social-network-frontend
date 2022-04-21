@@ -18,6 +18,7 @@ const { CKEditor } = require("@ckeditor/ckeditor5-react");
 
 const SetStory = () => {
   let unmounted = false;
+  const [stories, setStories] = useState<any[]>([]);
   const [authUser, setAuthUser] = useState<IAuthUser | null>(null);
   const [isInitial, setIsInitial] = useState<boolean>(true);
   const [textarea, setTextarea] = useState<string>("");
@@ -38,13 +39,16 @@ const SetStory = () => {
     (async () => {
       const _user = await getCurrentUser();
       const stories = await storyService.getAll({
-        bearerToken: `${authUser?.token}`,
+        bearerToken: `${_user?.token}`,
       });
 
-      console.log(stories);
-
-      if (_user && !unmounted) {
-        setAuthUser(_user);
+      if (!unmounted) {
+        if (stories) {
+          setStories(stories);
+        }
+        if (_user) {
+          setAuthUser(_user);
+        }
       }
     })();
   }, []);
@@ -87,15 +91,27 @@ const SetStory = () => {
             formData.append("Text", textarea);
             formData.append("UserId", authUser.id);
 
-            await axios.post(
-              path.join(`${process.env.REACT_APP_API_BASE}`, "Stories"),
-              formData,
-              {
-                headers: {
-                  Authorization: `Bearer ${authUser.token}`,
-                },
-              }
-            );
+            await axios
+              .post(
+                path.join(`${process.env.REACT_APP_API_BASE}`, "Stories"),
+                formData,
+                {
+                  headers: {
+                    Authorization: `Bearer ${authUser.token}`,
+                  },
+                }
+              )
+              .then(async () => {
+                setTextarea("");
+                const _stories = await storyService.getAll({
+                  bearerToken: `${authUser?.token}`,
+                });
+                setStories(_stories);
+                await alertService.Success({
+                  title: "Success",
+                  text: "Story added successfully",
+                });
+              });
           }
         }
       } else {
@@ -110,6 +126,56 @@ const SetStory = () => {
         text: "Select the story image please!",
       });
     }
+  };
+
+  const handleStoryDelete = async (id: number): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+      try {
+        alertService
+          .Warning(
+            {
+              title: "Delete",
+              text: "Do you really want delete?",
+              showCancelButton: true,
+            },
+            (res: any) =>
+              new Promise((resolve, reject) => {
+                try {
+                  if (res.isConfirmed) {
+                    storyService
+                      .delete(id, {
+                        bearerToken: `${authUser?.token}`,
+                      })
+                      .then(async () => {
+                        setStories([...stories.filter((s) => s.id != id)]);
+                        await alertService.Success({
+                          title: "Success",
+                          text: "Story deleted!",
+                        });
+                      })
+                      .catch(() => {
+                        alertService.Error({
+                          title: "Ooops",
+                          text: "Can't delete story. Please try refresh the page.",
+                        });
+                      });
+                  } else {
+                  }
+                } catch (error) {
+                  reject(error);
+                }
+              })
+          )
+          .then(() => {
+            console.log("y");
+          })
+          .catch(() => {
+            console.log("n");
+          });
+      } catch (error) {
+        reject(error);
+      }
+    });
   };
 
   return (
@@ -183,24 +249,59 @@ const SetStory = () => {
       <hr className="mt-7" />
       <div className="user-stories w-100 flex flex-col mt-5">
         <h1 className="text-3xl font-bold mb-2">User Stories</h1>
-        <div className="flex">
-          <div
-            className="story-item flex items-center justify-center bg-white shadow-md rounded-md relative overflow-hidden cursor-pointer transition-all duration-300 ease-out"
-            style={{
-              flex: "0 0 200px",
-            }}
-          >
-            <img
-              ref={imageRef}
-              id="story-image"
-              className="w-full h-full object-cover absolute top-0 left-0 z-10"
-              src={path.join(
-                `${process.env.REACT_APP_STATIC_FILES_BASE}`,
-                "media/stories",
-                "default-story.jpg"
-              )}
-            />
-          </div>
+        <div className="flex flex-col gap-3 flex-wrap items-start">
+          {stories.length > 0 ? (
+            stories.map((story: any, index: number) => {
+              return (
+                <div
+                  key={index}
+                  className="story-item-wrapper flex flex-col items-center "
+                >
+                  <div className="flex">
+                    <div className="flex items-center ">
+                      <h1 className="text-center text-xl font-bold uppercase mr-5">
+                        {index + 1}
+                      </h1>
+                      <div
+                        className="story-item flex items-center justify-center scale-100 hover:scale-105 z-30 bg-white shadow-md rounded-md relative overflow-hidden cursor-pointer transition-all duration-300 ease-out"
+                        style={{
+                          flex: "0 0 200px",
+                        }}
+                      >
+                        <img
+                          id="story-image"
+                          className="w-full h-full object-cover absolute top-0 left-0 z-10"
+                          src={path.join(
+                            `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                            "media/stories",
+                            `${story.image}`
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div
+                      className="flex flex-col pb-1 pt-7 px-5"
+                      dangerouslySetInnerHTML={{
+                        __html: story.text,
+                      }}
+                    ></div>
+                    <div className="flex items-center px-10">
+                      <button
+                        onClick={() => handleStoryDelete(story.id)}
+                        className="border-rose-700/50 text-white rounded-full opacity-0 translate-x-full transition-all duration-300 ease-out story-item-delete-button"
+                      >
+                        <i className="bi bi-trash3-fill text-rose-600 transition-all duration-300 ease-out"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <h1 className="text-3xl font-bold opacity-50 my-5">
+              There is no story yet!
+            </h1>
+          )}
         </div>
       </div>
     </div>
