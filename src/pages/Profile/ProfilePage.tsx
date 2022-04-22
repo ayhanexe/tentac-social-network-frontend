@@ -2,10 +2,12 @@ import path from "path-browserify";
 import React, {
   BaseSyntheticEvent,
   memo,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
+import gsap from "gsap";
 import { Link } from "react-router-dom";
 import Header from "../../@components/Header/Header";
 import Profile from "../../@components/Profile/Profile";
@@ -15,12 +17,14 @@ import { AlertService } from "../../@tentac/services";
 import PostService from "../../@tentac/services/postService/PostService";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
-import { getCurrentUser, removeHtmlTagsFromString } from "../../utils/Utils";
+import {
+  getCurrentUser,
+  removeHtmlTagsFromString,
+  sleep,
+} from "../../utils/Utils";
 import * as ConfigConstants from "../../@tentac/constants/config.constants";
 import "./ProfilePage.scss";
-import PopupAlertService, {
-  IPopupAlertServiceOptions,
-} from "../../@tentac/services/popup-alert-service/PopupAlertService";
+import PopupAlertService from "../../@tentac/services/popup-alert-service/PopupAlertService";
 
 import TinySlider from "tiny-slider-react";
 import "tiny-slider/dist/tiny-slider.css";
@@ -41,27 +45,102 @@ function ProfilePage() {
   const [isInitial, setIsInitial] = useState<boolean>(true);
   const [isFocusing, setIsFocusing] = useState<boolean>(false);
   const [hasPopup, setHasPopup] = useState<boolean>(false);
-  const storyTimelineRef = useRef(null);
+  const storyTimelineRef = useRef<HTMLDivElement>(null);
+  const [item, rerender] = useState<number>(0);
   const alertService: AlertService = new AlertService();
   const PopupService: PopupAlertService = new PopupAlertService();
   const tinySliderRef = useRef<any>(null);
-  const [showStory, setShowStory] = useState<boolean>(false);
-  const storyTimeout = 1000;
+  const userStoriesContainerRef = useRef<HTMLDivElement>(null);
+  const [showStory, setShowStory] = useState<boolean>(true);
+  const storyTimeout = 3000;
+  const pauseRef = useRef<HTMLDivElement>(null);
+  let storyInterval: NodeJS.Timer | null = null;
+  let [slideIndex, setSlideIndex] = useState<number>(0);
+  let [animateTimelineFunc, setAnimateTimelineFunc] =
+    useState<AsyncGenerator | null>(null);
+  const [clicking, setClicking] = useState<boolean>(false);
+  const timeline = useRef(gsap.timeline({ paused: clicking }));
+
+  useEffect(() => {
+    document.addEventListener("click", async (e) => {
+      if (
+        !isUnmounted &&
+        userStoriesContainerRef.current &&
+        !e.composedPath().includes(userStoriesContainerRef.current)
+      ) {
+        setHasPopup(false);
+        setShowStory(false);
+        if (storyInterval) clearInterval(storyInterval);
+      }
+      //  else {
+      //   const timelineItems = storyTimelineRef.current?.querySelectorAll(
+      //     ".timeline-item"
+      //   )
+      //     ? [...storyTimelineRef.current?.querySelectorAll(".timeline-item")]
+      //     : [];
+      // }
+    });
+  }, []);
 
   const handleSeeStories = async () => {
     if (!isUnmounted) {
-      console.log(storyTimelineRef);
-      PopupService.Hide();
+      await sleep(0);
+      await PopupService.Hide();
       setHasPopup(false);
       setShowStory(true);
+
+      if (storyTimelineRef.current) {
+        const timelineItems = storyTimelineRef.current.querySelectorAll(
+          ".timeline-item-inner-progress"
+        );
+
+        if (!isUnmounted) {
+          const _timeline = animateTimeline([...timelineItems]);
+          setAnimateTimelineFunc(_timeline);
+
+          (async () => {
+            await _timeline?.next();
+          })();
+
+          handleStoriesSlider();
+        }
+      }
     }
   };
 
+  async function handleStoriesSlider() {
+    if (storyInterval) clearInterval(storyInterval);
+  }
+
+  useEffect(() => {
+    if (timeline.current) {
+      timeline.current.then(async () => {
+        if (!isUnmounted) setSlideIndex(slideIndex + 1);
+        slideIndex += 1;
+        if (animateTimelineFunc) await animateTimelineFunc.next();
+      });
+    }
+  }, [timeline, animateTimelineFunc]);
+
+  async function* animateTimeline(timelineItems: Element[]) {
+    for (let i = 0; i < timelineItems.length; i++) {
+      tinySliderRef.current?.slider?.goTo(i);
+      if (!isUnmounted) setSlideIndex(i);
+
+      timeline.current?.add(
+        gsap.to(timelineItems[i], {
+          width: "100%",
+          duration: storyTimeout / 1000,
+          ease: "linear",
+        })
+      );
+
+      yield i;
+    }
+  }
+
   const Alert = PopupService.Invoke({
     title: "Select one",
-    after: () => {
-      alert("asdasd");
-    },
     body: (
       <div
         className="flex flex-col justify-center items-center align-center h-full pt-5"
@@ -137,7 +216,6 @@ function ProfilePage() {
       }
     }
   };
-
   const handleDelete = (data: any) => {
     setPostData([...postData.filter((d) => d.id != data.id)]);
   };
@@ -198,23 +276,85 @@ function ProfilePage() {
     }
   }, [user]);
 
-  const handleSlideNextStory = (item: any) => {
-    console.log(item);
+  const slidePrev = () => {
+    if (slideIndex > 0) {
+      slideIndex -= 1;
+      setSlideIndex(slideIndex);
+      tinySliderRef.current?.slider.goTo(slideIndex);
+      const timelineItems = storyTimelineRef.current?.querySelectorAll(
+        ".timeline-item-inner-progress"
+      );
+
+      if (timelineItems && timelineItems.length > 0) {
+        const _a_timelineItems = [...timelineItems];
+        timeline.current.clear();
+        gsap.set(
+          _a_timelineItems.slice(-(_a_timelineItems.length - slideIndex)),
+          {
+            width: "0",
+          }
+        );
+        timeline.current?.add(
+          gsap.to(_a_timelineItems[slideIndex], {
+            width: "100%",
+            duration: storyTimeout / 1000,
+            ease: "linear",
+          })
+        );
+        timeline.current.then(() => {
+          slideIndex -= 1;
+          tinySliderRef.current.slider.goTo(slideIndex)
+          animateTimelineFunc?.next();
+        });
+      }
+    }
   };
 
-  const handleStoryClick = () => {
-    const tnsItems = tinySliderRef.current?.ref?.querySelectorAll(".tns-item");
+  const slideNext = () => {
+    if (slideIndex < (user?.userStories?.length ?? 0) - 1) {
+      slideIndex += 1;
+      setSlideIndex(slideIndex);
 
-    tnsItems.forEach((item: any) => {
-      item.addEventListener("click", () => handleSlideNextStory(item));
-    });
+      tinySliderRef.current?.slider.goTo(slideIndex);
+
+      const timelineItems = storyTimelineRef.current?.querySelectorAll(
+        ".timeline-item-inner-progress"
+      );
+
+      if (timelineItems && timelineItems.length > 0) {
+        const _a_timelineItems = [...timelineItems];
+
+        timeline.current.clear();
+        gsap.set(_a_timelineItems.slice(0, slideIndex), {
+          width: "100%",
+        });
+        timeline.current?.add(
+          gsap.to(_a_timelineItems[slideIndex], {
+            width: "100%",
+            duration: storyTimeout / 1000,
+            ease: "linear",
+          })
+        );
+      }
+    }
   };
+
+  useEffect(() => {
+    if (clicking) {
+      timeline.current?.pause();
+    } else {
+      timeline.current?.play();
+    }
+  }, [clicking]);
 
   return user ? (
     <>
       {showStory ? (
         <div className="user-stories-wrapper flex items-center justify-center w-full h-full fixed top-0 left-0 z-50 bg-black/80">
-          <div className="user-stories-container bg-black/80 rounded-md flex flex-col p-1">
+          <div
+            ref={userStoriesContainerRef}
+            className="user-stories-container bg-black/80 rounded-md flex flex-col p-1 relative"
+          >
             <div
               ref={storyTimelineRef}
               className="story-timeline-container w-full gap-1 flex justify-between"
@@ -233,6 +373,38 @@ function ProfilePage() {
                 );
               })}
             </div>
+            <div
+              onClick={slidePrev}
+              className="previous-trigger bg-red-700/50 w-3/12 h-full absolute left-0 top-0 z-30"
+            ></div>
+            <div
+              onClick={slideNext}
+              className="next-trigger bg-yellow-400/50 w-3/12 h-full absolute right-0 top-0 z-30"
+            ></div>
+            <div
+              ref={pauseRef}
+              onMouseDown={() => {
+                if (!isUnmounted) {
+                  setClicking(true);
+                }
+              }}
+              onMouseUp={() => {
+                if (!isUnmounted) {
+                  setClicking(false);
+                }
+              }}
+              onMouseLeave={() => {
+                if (!isUnmounted) {
+                  setClicking(false);
+                }
+              }}
+              onBlur={() => {
+                if (!isUnmounted) {
+                  setClicking(false);
+                }
+              }}
+              className="pause-trigger bg-emerald-200/50 w-6/12 z-30 absolute top-0 left-1/4 h-full"
+            ></div>
             <div className="story-carousel w-full h-full">
               <TinySlider
                 ref={tinySliderRef}
@@ -252,7 +424,7 @@ function ProfilePage() {
                     className="relative pt-2 overflow-hidden rounded-md"
                   >
                     <img
-                      className="tns-lazy-img w-full h-full object-cover"
+                      className="tns-lazy-img w-full h-full object-cover select-none"
                       src={path.join(
                         `${process.env.REACT_APP_STATIC_FILES_BASE}`,
                         "media/stories",
@@ -263,7 +435,6 @@ function ProfilePage() {
                         "media/stories",
                         `${data.story.image}`
                       )}
-                      onClick={handleStoryClick}
                     />
                   </div>
                 ))}
@@ -458,4 +629,4 @@ function ProfilePage() {
   );
 }
 
-export default memo(ProfilePage);
+export default ProfilePage;

@@ -104,3 +104,13 @@ export function makeAssetUrl(fileName: string, middleware: string) {
     `${fileName}`
   )}`;
 }
+
+export async function sleep(ms: number): Promise<void> {
+  return await new Promise((resolve, reject) => {
+    try {
+      setTimeout(() => resolve(), ms);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
