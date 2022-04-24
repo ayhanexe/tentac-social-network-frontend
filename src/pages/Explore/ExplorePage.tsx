@@ -61,9 +61,8 @@ export default function ExplorePage() {
   ) => {
     e.preventDefault();
     const request = friendRequests.filter(
-      (f) => f?.friendRequestedUser?.id == userId && f?.user?.id == authUser?.id
+      (f) => f?.friendRequestedUser?.id == authUser?.id && f?.user?.id == userId
     );
-
     if (request.length > 0) {
       await axios
         .delete(
@@ -136,9 +135,25 @@ export default function ExplorePage() {
           </h1>
         ) : (
           users?.map((user, index) => (
-            <Link to={`/user-details/${user.id}`} key={index}>
-              <div className="profile-item relative shadow-lg">
-                <div className="image-container w-full h-full relative rounded-md overflow-hidden flex justify-center items-center">
+            <Link
+              to={`/user-details/${user.id}`}
+              key={index}
+              className="relative"
+              style={{
+                zIndex: Math.round(users.length - index),
+              }}
+            >
+              <div className="profile-item relative shadow-lg z-10">
+                <div className="image-container w-full h-full relative rounded-md overflow-hidden flex justify-center items-center z-20">
+                  {user.friends.filter(
+                    (friend) =>
+                      friend.friend == authUser?.id ||
+                      friend.user == authUser?.id
+                  ).length > 0 ? (
+                    <div className="absolute top-0 left-0 w-full py-2 bg-green-300 text-center font-bold z-40">
+                      FRIEND
+                    </div>
+                  ) : null}
                   {user.profilePhoto ? (
                     <img
                       src={makeAssetUrl(
@@ -156,34 +171,38 @@ export default function ExplorePage() {
                 </span>
                 <div className="user-actions-carousel absolute right-0 top-0 z-10">
                   <div className="user-actions rounded-md flex flex-col">
-                    {friendRequests.length > 0 ? (
+                    {user.friends.filter(
+                    (friend) =>
+                      friend.friend == authUser?.id ||
+                      friend.user == authUser?.id
+                  ).length == 0 ? friendRequests.length > 0 ? (
                       friendRequests?.filter(
                         (f) =>
-                          f?.friendRequestedUser?.id == user?.id &&
-                          f?.user?.id == authUser?.id
+                          f?.friendRequestedUser?.id == authUser?.id &&
+                          f?.user?.id == user?.id
                       ).length > 0 ? (
                         <button
                           onClick={(e) => handleUserUnfriendRequest(user.id, e)}
-                          className="action-button flex items-center justify-center rounded-full"
+                          className="action-button flex items-center justify-center rounded-full z-50 relative"
                         >
-                          <i className="bi bi-person-dash-fill"></i>
+                          <i className="bi bi-person-dash-fill relative z-50"></i>
                         </button>
                       ) : (
                         <button
                           onClick={(e) => handleUserFriendRequest(user.id, e)}
-                          className="action-button flex items-center justify-center rounded-full"
+                          className="action-button flex items-center justify-center rounded-full z-50 relative"
                         >
-                          <i className="bi bi-person-plus-fill"></i>
+                          <i className="bi bi-person-plus-fill relative z-50"></i>
                         </button>
                       )
                     ) : (
                       <button
                         onClick={(e) => handleUserFriendRequest(user.id, e)}
-                        className="action-button flex items-center justify-center rounded-full"
+                        className="action-button flex items-center justify-center rounded-full z-50 relative"
                       >
-                        <i className="bi bi-person-plus-fill"></i>
+                        <i className="bi bi-person-plus-fill relative z-50"></i>
                       </button>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>

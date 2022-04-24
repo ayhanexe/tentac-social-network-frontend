@@ -51,7 +51,7 @@ function ProfilePage() {
   const PopupService: PopupAlertService = new PopupAlertService();
   const tinySliderRef = useRef<any>(null);
   const userStoriesContainerRef = useRef<HTMLDivElement>(null);
-  const [showStory, setShowStory] = useState<boolean>(true);
+  const [showStory, setShowStory] = useState<boolean>(false);
   const storyTimeout = 3000;
   const pauseRef = useRef<HTMLDivElement>(null);
   let storyInterval: NodeJS.Timer | null = null;
@@ -161,12 +161,14 @@ function ProfilePage() {
         >
           Set Story
         </Link>
-        <button
-          onClick={handleSeeStories}
-          className="py-1 px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
-        >
-          See Stories
-        </button>
+        {user && user.userStories.length > 0 ? (
+          <button
+            onClick={handleSeeStories}
+            className="py-1 px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
+          >
+            See Stories
+          </button>
+        ) : null}
       </div>
     ),
     footer: (
@@ -303,7 +305,7 @@ function ProfilePage() {
         );
         timeline.current.then(() => {
           slideIndex -= 1;
-          tinySliderRef.current.slider.goTo(slideIndex)
+          tinySliderRef.current?.slider?.goTo(slideIndex);
           animateTimelineFunc?.next();
         });
       }
@@ -375,11 +377,11 @@ function ProfilePage() {
             </div>
             <div
               onClick={slidePrev}
-              className="previous-trigger bg-red-700/50 w-3/12 h-full absolute left-0 top-0 z-30"
+              className="previous-trigger w-3/12 h-full absolute left-0 top-0 z-30"
             ></div>
             <div
               onClick={slideNext}
-              className="next-trigger bg-yellow-400/50 w-3/12 h-full absolute right-0 top-0 z-30"
+              className="next-trigger w-3/12 h-full absolute right-0 top-0 z-30"
             ></div>
             <div
               ref={pauseRef}
@@ -403,7 +405,7 @@ function ProfilePage() {
                   setClicking(false);
                 }
               }}
-              className="pause-trigger bg-emerald-200/50 w-6/12 z-30 absolute top-0 left-1/4 h-full"
+              className="pause-trigger w-6/12 z-30 absolute top-0 left-1/4 h-full"
             ></div>
             <div className="story-carousel w-full h-full">
               <TinySlider
@@ -462,10 +464,10 @@ function ProfilePage() {
             radius="250px"
             imageUrl={profilePhoto ?? null}
             letters={letters}
-            circleClass="-translate-y-1/4 ml-10 shadow-lg z-10"
+            circleClass="-translate-y-1/4 ml-10 shadow-lg z-10 cursor-pointer"
             textClass="text-6xl"
             defaultIconClass="text-6xl"
-            hasStory={true}
+            hasStory={user && user.userStories.length > 0}
             onClick={handleProfileClick}
           />
           <div id="content-area" className="w-full">
@@ -492,7 +494,7 @@ function ProfilePage() {
                       radius="60px"
                       imageUrl={profilePhoto ?? null}
                       letters={letters}
-                      hasStory={true}
+                      hasStory={user && user.userStories.length > 0}
                       storyBorderWidth="6px"
                       defaultIconClass="text-2xl"
                     />
@@ -586,7 +588,7 @@ function ProfilePage() {
                         radius="50px"
                         imageUrl={profilePhoto ?? null}
                         letters={letters}
-                        hasStory={true}
+                        hasStory={user && user.userStories.length > 0}
                         storyBorderWidth="6px"
                       />
                       <h1 className="text-sm font-medium">Ayxan Abdullayev</h1>

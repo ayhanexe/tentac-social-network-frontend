@@ -1,4 +1,4 @@
-import { IAuthUser, IUserInfo } from "./authTypes";
+import { IAuthUser, IBackendUser, IUserInfo } from "./authTypes";
 
 export interface IPost {
   id?: number;
@@ -11,4 +11,10 @@ export interface IPost {
   lastModificationDate?: string | null;
   postLikes: any[];
   postReplies: any[];
+}
+
+export interface INotification {
+  id: number;
+  text: string;
+  user: IBackendUser;
 }

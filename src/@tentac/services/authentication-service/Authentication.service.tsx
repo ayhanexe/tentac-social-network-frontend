@@ -53,6 +53,8 @@ export default class AuthenticationService implements IAuthenticationService {
                       "userWall",
                       "userPosts",
                       "userStories",
+                      "notifications",
+                      "friends"
                     ]),
                     ...pick(localStore.auth, ["roles", "token"]),
                     ...pick(sessionStore.auth, ["roles", "token"]),

@@ -219,7 +219,9 @@ export default function Authentication() {
                           profilePhotoName: user.profilePhoto,
                           userWall: user.userWall,
                           userPosts: user.userPosts,
-                          userStories: user.userStories
+                          userStories: user.userStories,
+                          notifications: user.notifications,
+                          friends: user.friends
                         })
                       );
                     });

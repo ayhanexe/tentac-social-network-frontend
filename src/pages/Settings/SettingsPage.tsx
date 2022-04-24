@@ -127,6 +127,8 @@ export default function SettingsPage() {
               "token",
               "userPosts",
               "userStories",
+              "notifications",
+              "friends"
             ]),
             profilePhoto: user.profilePhotoName,
           },

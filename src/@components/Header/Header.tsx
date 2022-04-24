@@ -82,6 +82,57 @@ export default function Header() {
     };
   }, []);
 
+  const acceptUserRequest = async (id: any) => {
+    if (id) {
+      await axios
+        .post(
+          path.join(
+            `${process.env.REACT_APP_API_BASE}`,
+            "userFriendRequests",
+            "Accept",
+            id
+          ),
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        )
+        .then(() => {
+          if (!unmounted) {
+            setFriendRequests([
+              ...friendRequests.filter((request: any) => request.id != id),
+            ]);
+          }
+        });
+    }
+  };
+  const declineUserRequest = async (id: any) => {
+    if (id) {
+      await axios
+        .post(
+          path.join(
+            `${process.env.REACT_APP_API_BASE}`,
+            "userFriendRequests",
+            "Decline",
+            id
+          ),
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        )
+        .then(() => {
+          if (!unmounted) {
+            setFriendRequests([
+              ...friendRequests.filter((request: any) => request.id != id),
+            ]);
+          }
+        });
+    }
+  };
+
   return (
     <header
       id="header"
@@ -98,10 +149,14 @@ export default function Header() {
             onClick={handleNotificationDropdownToggle}
             className="bi bi-bell-fill text-xl text-gray-900/90 cursor-pointer relative"
           >
-            {friendRequests?.filter((d: any) => d?.user?.id != user?.id)
-              ?.length > 0 ? (
+            {user &&
+            friendRequests.filter((d: any) => d?.user?.id == user?.id)?.length >
+              0 ? (
               <div className="rounded-full notification-number bg-white absolute flex items-center justify-center text-xs not-italic font-bold">
-                {friendRequests?.length}
+                {
+                  friendRequests.filter((d: any) => d?.user?.id == user?.id)
+                    ?.length
+                }
               </div>
             ) : null}
           </i>
@@ -111,49 +166,91 @@ export default function Header() {
             className={`bg-white rounded-md absolute shadow-md flex flex-col right-0 p-2 ${
               notificationDropdownState ? "" : "hidden"
             }`}
+            style={{
+              zIndex: 999999999,
+            }}
           >
             <h1 className="text-xl font-bold mb-3">Notifications</h1>
             {/*  */}
-            {friendRequests.length == 0 ? (
+            {friendRequests?.filter(
+              (d: any) => d?.friendRequestedUser?.id != user?.id
+            )?.length == 0 && user?.notifications.length == 0 ? (
               <h1 className="font-bold text-2xl text-center mb-3 text-black/20 select-none">
                 Empty
               </h1>
             ) : (
-              friendRequests?.map((item: any, index: number) => {
-                return (
-                  <div
-                    key={index}
-                    className="notification-container w-full rounded-md py-5 px-2 flex flex-wrap gap-2 justify-between items-center"
-                  >
-                    <span className="select-none">
-                      <Link
-                        to={path.join(
-                          "/",
-                          path.join(
-                            "user-details",
-                            `${item?.friendRequestedUser?.id}`
-                          )
-                        )}
+              <>
+                {user?.notifications.map((notification: any, index: number) => {
+                  return notification.userId ? (
+                    <Link
+                      key={index}
+                      to={`/user-details/${notification.userId}`}
+                    >
+                      <div
+                        key={`notification-${index}`}
+                        dangerouslySetInnerHTML={{
+                          __html: `${notification.text}`,
+                        }}
+                      ></div>
+                    </Link>
+                  ) : (
+                    <div
+                      key={`notification-${index}`}
+                      dangerouslySetInnerHTML={{
+                        __html: `${notification.text}`,
+                      }}
+                    ></div>
+                  );
+                })}
+                {friendRequests
+                  ?.filter((d: any) => d?.user?.id == user?.id)
+                  ?.map((item: any, index: number) => {
+                    return (
+                      <div
+                        key={index}
+                        className="notification-container w-full rounded-md py-5 px-2 flex flex-wrap gap-2 justify-between items-center"
                       >
-                        <b>
-                          {item?.user?.name == "" || item?.user?.surname == ""
-                            ? item?.user?.userName
-                            : `${item?.user?.name} ${item?.user?.surname}`}
-                        </b>
-                      </Link>
-                      &nbsp; sended friend request
-                    </span>
-                    <div className="flex gap-2">
-                      <button className="rounded-md bg-lime-400 px-3 py-1 font-medium">
-                        Accept
-                      </button>
-                      <button className="rounded-md bg-red-500 px-3 py-1 font-medium">
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
+                        <span className="select-none">
+                          <Link
+                            to={path.join(
+                              "/",
+                              path.join(
+                                "user-details",
+                                `${item?.friendRequestedUser?.id}`
+                              )
+                            )}
+                          >
+                            <b>
+                              {item?.friendRequestedUser?.name == "" ||
+                              item?.friendRequestedUser?.surname == ""
+                                ? item?.friendRequestedUser?.userName
+                                : `${item?.friendRequestedUser?.name} ${item?.friendRequestedUser?.surname}`}
+                            </b>
+                          </Link>
+                          &nbsp; sended friend request
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async () =>
+                              await acceptUserRequest(item.id)
+                            }
+                            className="rounded-md bg-lime-400 px-3 py-1 font-medium"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={async () =>
+                              await declineUserRequest(item.id)
+                            }
+                            className="rounded-md bg-red-500 px-3 py-1 font-medium"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </>
             )}
             {/*  */}
           </div>

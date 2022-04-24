@@ -1,4 +1,5 @@
 import { IStory } from "../../services/story-service/story-service.types";
+import { INotification } from "./userTypes";
 
 enum AuthenticationTypes {
   LOGIN,
@@ -37,6 +38,11 @@ export interface IAuthUser {
   gender?: number;
   tel?: string | null;
   userStories: IStory[];
+  notifications: INotification[];
+  friends: {
+    friend: string;
+    user: string;
+  }[];
 }
 
 export interface IUserInfo {
@@ -60,6 +66,11 @@ export interface IUserInfo {
   gender?: number;
   tel?: string | null;
   userStories: IStory[];
+  notifications: INotification[];
+  friends: {
+    friend: string;
+    user: string;
+  }[];
 }
 
 export interface IBackendUser {
@@ -84,4 +95,9 @@ export interface IBackendUser {
   gender?: number;
   tel?: string | null;
   userStories: IStory[];
+  notifications: INotification[];
+  friends: {
+    friend: string;
+    user: string;
+  }[];
 }
