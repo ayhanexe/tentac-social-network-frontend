@@ -4,6 +4,7 @@ import AntiAuthRoute from "../../@components/antiAuthorizationRoute/AntiAuthRout
 import AuthRoute from "../../@components/authorizationRoute/AuthorizationRoute";
 import { AuthenticationPage } from "../../pages";
 import ExplorePage from "../../pages/Explore/ExplorePage";
+import FriendsPage from "../../pages/FriendsPage/FriendsPage";
 import Home from "../../pages/Home/Home";
 import Logout from "../../pages/Logout/Logout";
 import PersonDetails from "../../pages/PersonDetails/PersonDetails";
@@ -33,6 +34,8 @@ function GeneralRoutes(props: any) {
   const UserDetailsRoute = memo(AuthRoute(() => <PersonDetails />));
 
   const AddStoryRoute = memo(AuthRoute(() => <SetStory />));
+  
+  const FriendsRoute = memo(AuthRoute(() => <FriendsPage />));
 
   return (
     <BrowserRouter>
@@ -45,6 +48,7 @@ function GeneralRoutes(props: any) {
         <Route path="/explore" element={<ExploreRoute />} />
         <Route path="/user-details/:id" element={<UserDetailsRoute />} />
         <Route path="/add-story/:id" element={<AddStoryRoute />} />
+        <Route path="/friends" element={<FriendsRoute />} />
       </Routes>
     </BrowserRouter>
   );

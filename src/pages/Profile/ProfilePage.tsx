@@ -88,18 +88,15 @@ function ProfilePage() {
       await PopupService.Hide();
       setHasPopup(false);
       setShowStory(true);
+      timeline.current.clear();
+      timeline.current.restart();
+      slideIndex = 0;
+      setSlideIndex(0);
 
       if (storyTimelineRef.current) {
-        const timelineItems = storyTimelineRef.current.querySelectorAll(
-          ".timeline-item-inner-progress"
-        );
-
         if (!isUnmounted) {
-          const _timeline = animateTimeline([...timelineItems]);
-          setAnimateTimelineFunc(_timeline);
-
           (async () => {
-            await _timeline?.next();
+            await animateTimeline();
           })();
 
           handleStoriesSlider();
@@ -107,7 +104,6 @@ function ProfilePage() {
       }
     }
   };
-
   async function handleStoriesSlider() {
     if (storyInterval) clearInterval(storyInterval);
   }
@@ -122,20 +118,24 @@ function ProfilePage() {
     }
   }, [timeline, animateTimelineFunc]);
 
-  async function* animateTimeline(timelineItems: Element[]) {
-    for (let i = 0; i < timelineItems.length; i++) {
-      tinySliderRef.current?.slider?.goTo(i);
-      if (!isUnmounted) setSlideIndex(i);
-
+  async function animateTimeline() {
+    if (storyTimelineRef.current) {
+      const timelineItems = storyTimelineRef.current.querySelectorAll(
+        ".timeline-item-inner-progress"
+      );
       timeline.current?.add(
-        gsap.to(timelineItems[i], {
+        gsap.to(timelineItems[slideIndex], {
           width: "100%",
           duration: storyTimeout / 1000,
           ease: "linear",
         })
       );
-
-      yield i;
+      if (timeline.current.then) {
+        timeline.current?.then(() => {
+          timeline.current.restart();
+          slideNext();
+        });
+      }
     }
   }
 
@@ -277,7 +277,6 @@ function ProfilePage() {
       setWallPhoto(user.userWall);
     }
   }, [user]);
-
   const slidePrev = () => {
     if (slideIndex > 0) {
       slideIndex -= 1;
@@ -289,11 +288,11 @@ function ProfilePage() {
 
       if (timelineItems && timelineItems.length > 0) {
         const _a_timelineItems = [...timelineItems];
-        timeline.current.clear();
+        timeline.current.pause();
         gsap.set(
           _a_timelineItems.slice(-(_a_timelineItems.length - slideIndex)),
           {
-            width: "0",
+            width: "0%",
           }
         );
         timeline.current?.add(
@@ -303,11 +302,9 @@ function ProfilePage() {
             ease: "linear",
           })
         );
-        timeline.current.then(() => {
-          slideIndex -= 1;
-          tinySliderRef.current?.slider?.goTo(slideIndex);
-          animateTimelineFunc?.next();
-        });
+        timeline.current.clear();
+        timeline.current.play();
+        animateTimeline();
       }
     }
   };
@@ -462,7 +459,7 @@ function ProfilePage() {
           </div>
           <Profile
             radius="250px"
-            imageUrl={profilePhoto ?? null}
+            imageUrl={user.profilePhotoName ? path.join(`${process.env.REACT_APP_STATIC_FILES_BASE}`, "media/profiles", `${user.profilePhotoName}`) : null}
             letters={letters}
             circleClass="-translate-y-1/4 ml-10 shadow-lg z-10 cursor-pointer"
             textClass="text-6xl"

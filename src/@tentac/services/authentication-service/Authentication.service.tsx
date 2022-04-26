@@ -27,44 +27,46 @@ export default class AuthenticationService implements IAuthenticationService {
               bearerToken: `${data.auth?.token ?? sessionData.auth?.token}`,
             })
             .then(async (response) => {
-              const search = Object.values(response).filter(
-                (value: IAuthUser) =>
-                  value.email ===
-                  `${data.auth?.email ?? sessionData.auth?.email}`
-              );
-              const localStore = await storageService.GetAllData();
-              const sessionStore = await storageService.GetAllData(true);
-
-              if (search.length === 0) {
-                storageService.DestroyData();
-              } else {
-                dispatch(
-                  addUserInfo({
-                    ...pick(search[0], [
-                      "email",
-                      "name",
-                      "surname",
-                      "id",
-                      "userName",
-                      "roles",
-                      "token",
-                      "profilePhotoUrl",
-                      "profilePhotoName",
-                      "userWall",
-                      "userPosts",
-                      "userStories",
-                      "notifications",
-                      "friends"
-                    ]),
-                    ...pick(localStore.auth, ["roles", "token"]),
-                    ...pick(sessionStore.auth, ["roles", "token"]),
-                    profilePhotoUrl: `${path.join(
-                      `${process.env.REACT_APP_STATIC_FILES_BASE}`,
-                      `media/profiles`,
-                      `${search[0].profilePhoto}`
-                    )}`,
-                  })
+              if (response) {
+                const search = Object.values(response).filter(
+                  (value: IAuthUser) =>
+                    value.email ===
+                    `${data.auth?.email ?? sessionData.auth?.email}`
                 );
+                const localStore = await storageService.GetAllData();
+                const sessionStore = await storageService.GetAllData(true);
+
+                if (search.length === 0) {
+                  storageService.DestroyData();
+                } else {
+                  dispatch(
+                    addUserInfo({
+                      ...pick(search[0], [
+                        "email",
+                        "name",
+                        "surname",
+                        "id",
+                        "userName",
+                        "roles",
+                        "token",
+                        "profilePhotoUrl",
+                        "profilePhotoName",
+                        "userWall",
+                        "userPosts",
+                        "userStories",
+                        "notifications",
+                        "friends",
+                      ]),
+                      ...pick(localStore.auth, ["roles", "token"]),
+                      ...pick(sessionStore.auth, ["roles", "token"]),
+                      profilePhotoUrl: `${path.join(
+                        `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                        `media/profiles`,
+                        `${search[0].profilePhoto}`
+                      )}`,
+                    })
+                  );
+                }
               }
             });
 

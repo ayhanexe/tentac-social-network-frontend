@@ -105,7 +105,7 @@ export default function Authentication() {
             }
           })
           .catch((response: any) => {
-            console.log(response)
+            console.log(response);
             if (response.errors) {
               if (Object.keys(response.errors).length > 0) {
                 const errorMessage = `${flattenDeep(
@@ -122,8 +122,7 @@ export default function Authentication() {
                   text: `${response.message}`,
                 });
               }
-            }
-            else if(response?.data?.hasError) {
+            } else if (response?.data?.hasError) {
               alertService.Error({
                 title: "Ooops!",
                 html: `${response.data.message}`,
@@ -196,34 +195,36 @@ export default function Authentication() {
                           true
                         );
                       }
-                      dispatch(
-                        addUserInfo({
-                          id: user.id,
-                          emailConfirmed: user.emailConfirmed,
-                          lockoutEnd: user.lockoutEnd,
-                          twoFactorEnabled: user.twoFactorEnabled,
-                          userName: user.userName,
-                          email: user.email,
-                          name: user.name,
-                          surname: user.surname,
-                          roles: response.roles,
-                          phoneNumber: user.phoneNumber,
-                          phoneNumberConfirmed: user.phoneNumberConfirmed,
-                          accessFailedCount: user.accessFailedCount,
-                          token: response.token,
-                          profilePhotoUrl: path.join(
-                            `${process.env.REACT_APP_STATIC_FILES_BASE}`,
-                            `media/profiles`,
-                            `${user.profilePhoto}`
-                          ),
-                          profilePhotoName: user.profilePhoto,
-                          userWall: user.userWall,
-                          userPosts: user.userPosts,
-                          userStories: user.userStories,
-                          notifications: user.notifications,
-                          friends: user.friends
-                        })
-                      );
+                      if (user && response) {
+                        dispatch(
+                          addUserInfo({
+                            id: user.id,
+                            emailConfirmed: user.emailConfirmed,
+                            lockoutEnd: user.lockoutEnd,
+                            twoFactorEnabled: user.twoFactorEnabled,
+                            userName: user.userName,
+                            email: user.email,
+                            name: user.name,
+                            surname: user.surname,
+                            roles: response.roles,
+                            phoneNumber: user.phoneNumber,
+                            phoneNumberConfirmed: user.phoneNumberConfirmed,
+                            accessFailedCount: user.accessFailedCount,
+                            token: response.token,
+                            profilePhotoUrl: path.join(
+                              `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                              `media/profiles`,
+                              `${user.profilePhoto}`
+                            ),
+                            profilePhotoName: user.profilePhoto,
+                            userWall: user.userWall,
+                            userPosts: user.userPosts,
+                            userStories: user.userStories,
+                            notifications: user.notifications,
+                            friends: user.friends,
+                          })
+                        );
+                      }
                     });
                 });
             } else {

@@ -150,11 +150,11 @@ export default function Header() {
             className="bi bi-bell-fill text-xl text-gray-900/90 cursor-pointer relative"
           >
             {user &&
-            friendRequests.filter((d: any) => d?.user?.id == user?.id)?.length >
+            friendRequests?.filter((d: any) => d?.user?.id == user?.id)?.length >
               0 ? (
               <div className="rounded-full notification-number bg-white absolute flex items-center justify-center text-xs not-italic font-bold">
                 {
-                  friendRequests.filter((d: any) => d?.user?.id == user?.id)
+                  friendRequests?.filter((d: any) => d?.user?.id == user?.id)
                     ?.length
                 }
               </div>
