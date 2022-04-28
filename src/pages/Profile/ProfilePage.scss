@@ -6,8 +6,10 @@ main {
   }
 
   #content-area {
-    transform: translateY(-200px);
-
+    transform:translateY(-270px);
+    @media all and (max-width:1024px) {
+      margin-top:150px;
+    }
     #post-area {
       box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.02);
       font-size: 0.85em;
@@ -22,6 +24,12 @@ main {
     #recommendations {
       height: auto;
     }
+  }
+}
+
+.profile-info {
+  @media all and (max-width: 1024px) {
+    transform: translateY(-90%);
   }
 }
 
@@ -62,3 +70,4 @@ main {
     }
   }
 }
+

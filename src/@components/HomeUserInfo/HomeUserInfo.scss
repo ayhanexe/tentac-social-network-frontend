@@ -3,8 +3,11 @@
   flex: 0 0 300px;
   height: auto;
   background-color: white;
-
-  #user-info-container {
-    background-color: rgba(122, 117, 111, 0.04);
+  @media all and (max-width:1030px) {
+    width:100%;
   }
+}
+
+#user-info-container {
+  background-color: rgba(122, 117, 111, 0.04);
 }

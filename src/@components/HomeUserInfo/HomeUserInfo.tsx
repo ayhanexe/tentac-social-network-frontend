@@ -37,7 +37,7 @@ export default function HomeUserInfo() {
   return (
     <div
       id="home-user-info"
-      className="rounded-md shadow-md p-2 flex flex-col gap-2"
+      className="rounded-md shadow-md p-2 flex flex-col gap-2 w-full"
     >
       <div
         id="user-info-container"

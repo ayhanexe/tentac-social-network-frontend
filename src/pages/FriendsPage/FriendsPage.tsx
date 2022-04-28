@@ -40,7 +40,7 @@ const FriendsPage = () => {
       <Header />
       <div className="mt-5">
         <h1 className="text-3xl font-bold">Your Friends</h1>
-        <div className="users flex mt-3 gap-20">
+        <div className="users flex mt-3 gap-20 w-full">
           {user && friends.length > 0 ? (
             friends.map((data: any, index: number) => {
               return (
@@ -73,7 +73,7 @@ const FriendsPage = () => {
               );
             })
           ) : (
-            <h1>There is no friend yet!</h1>
+            <h1 className="text-4xl text-center block w-full mt-10 font-bold text-black/30">There is no friend yet!</h1>
           )}
         </div>
       </div>

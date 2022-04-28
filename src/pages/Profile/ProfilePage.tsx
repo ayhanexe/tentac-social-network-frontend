@@ -15,7 +15,7 @@ import PostComponent from "../../@components/ReplyComponent/PostComponent";
 import { defaultPostLength } from "../../@tentac/constants/config.constants";
 import { AlertService } from "../../@tentac/services";
 import PostService from "../../@tentac/services/postService/PostService";
-import { IAuthUser } from "../../@tentac/types/auth/authTypes";
+import { IAuthUser, IUserInfo } from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
 import {
   getCurrentUser,
@@ -28,6 +28,7 @@ import PopupAlertService from "../../@tentac/services/popup-alert-service/PopupA
 
 import TinySlider from "tiny-slider-react";
 import "tiny-slider/dist/tiny-slider.css";
+import axios from "axios";
 
 const { CKEditor } = require("@ckeditor/ckeditor5-react");
 const ClassicEditor = require("@ckeditor/ckeditor5-build-classic");
@@ -60,6 +61,42 @@ function ProfilePage() {
     useState<AsyncGenerator | null>(null);
   const [clicking, setClicking] = useState<boolean>(false);
   const timeline = useRef(gsap.timeline({ paused: clicking }));
+  const [profileRadius, setProfileRadius] = useState<number>(250);
+  const [recommendations, setRecommendations] = useState<IUserInfo[]>([]);
+  const handleResize = () => {
+    if (window.innerWidth < 1024) {
+      if (!isUnmounted) setProfileRadius(150);
+    } else {
+      if (!isUnmounted) setProfileRadius(250);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (user) {
+        const recommendations = await axios.get<IUserInfo[]>(
+          path.join(
+            `${process.env.REACT_APP_API_BASE}`,
+            "Users",
+            "recommendations",
+            `${user.id}`
+          ),
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+              token: `${user?.token}`,
+            },
+          }
+        );
+        setRecommendations(recommendations.data);
+      }
+    })();
+  }, [user]);
+
+  useEffect(() => {
+    window.addEventListener("resize", () => handleResize());
+    handleResize();
+  }, []);
 
   useEffect(() => {
     document.addEventListener("click", async (e) => {
@@ -72,13 +109,6 @@ function ProfilePage() {
         setShowStory(false);
         if (storyInterval) clearInterval(storyInterval);
       }
-      //  else {
-      //   const timelineItems = storyTimelineRef.current?.querySelectorAll(
-      //     ".timeline-item"
-      //   )
-      //     ? [...storyTimelineRef.current?.querySelectorAll(".timeline-item")]
-      //     : [];
-      // }
     });
   }, []);
 
@@ -218,6 +248,7 @@ function ProfilePage() {
       }
     }
   };
+
   const handleDelete = (data: any) => {
     setPostData([...postData.filter((d) => d.id != data.id)]);
   };
@@ -277,6 +308,7 @@ function ProfilePage() {
       setWallPhoto(user.userWall);
     }
   }, [user]);
+
   const slidePrev = () => {
     if (slideIndex > 0) {
       slideIndex -= 1;
@@ -445,7 +477,7 @@ function ProfilePage() {
       <div className="m-5 flex flex-col gap-4">
         {user ? <Header /> : <></>}
         {hasPopup ? <Alert /> : null}
-        <main>
+        <main className="main-container">
           <div id="wall" className="w-full rounded-lg overflow-hidden">
             <img
               src={path.join(
@@ -457,18 +489,28 @@ function ProfilePage() {
               alt=""
             />
           </div>
-          <Profile
-            radius="250px"
-            imageUrl={user.profilePhotoName ? path.join(`${process.env.REACT_APP_STATIC_FILES_BASE}`, "media/profiles", `${user.profilePhotoName}`) : null}
-            letters={letters}
-            circleClass="-translate-y-1/4 ml-10 shadow-lg z-10 cursor-pointer"
-            textClass="text-6xl"
-            defaultIconClass="text-6xl"
-            hasStory={user && user.userStories.length > 0}
-            onClick={handleProfileClick}
-          />
-          <div id="content-area" className="w-full">
-            <h1 className="ml-80 text-4xl font-black mb-32">
+          <div className="profile-info">
+            <Profile
+              radius={`${profileRadius}px`}
+              imageUrl={
+                user.profilePhotoName
+                  ? path.join(
+                      `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                      "media/profiles",
+                      `${user.profilePhotoName}`
+                    )
+                  : null
+              }
+              letters={letters}
+              circleClass="-translate-y-1/4 ml-10 shadow-lg z-10 cursor-pointer"
+              textClass="text-6xl"
+              defaultIconClass="text-6xl"
+              hasStory={user && user.userStories.length > 0}
+              onClick={handleProfileClick}
+            />
+          </div>
+          <div id="content-area" className="w-full ">
+            <h1 className="ml-0 lg:ml-80 text-4xl font-black mt-20 lg:mt-20 mb-20 lg:mb-32">
               {user?.name && user?.surname ? (
                 `${user.name} ${user.surname}`
               ) : user?.userName ? (
@@ -501,6 +543,8 @@ function ProfilePage() {
                         data="<p>Type something...</p>"
                         onChange={(event: any, editor: any) => {
                           if (!isInitial || isFocusing) {
+                            PopupService.Hide();
+                            setHasPopup(false);
                             const simpleText = removeHtmlTagsFromString(
                               editor.getData()
                             );
@@ -579,42 +623,28 @@ function ProfilePage() {
                 <h1 className="text-xl font-semibold">Recommendations</h1>
 
                 <div className="items flex flex-col gap-5 mt-5">
-                  <Link to="">
-                    <div className="user-container flex items-center gap-2">
-                      <Profile
-                        radius="50px"
-                        imageUrl={profilePhoto ?? null}
-                        letters={letters}
-                        hasStory={user && user.userStories.length > 0}
-                        storyBorderWidth="6px"
-                      />
-                      <h1 className="text-sm font-medium">Ayxan Abdullayev</h1>
-                    </div>
-                  </Link>
-                  <Link to="">
-                    <div className="user-container flex items-center gap-2">
-                      <Profile radius="50px" letters={`SE`} />
-                      <h1 className="text-sm font-medium">Steve Enderson</h1>
-                    </div>
-                  </Link>
-                  <Link to="">
-                    <div className="user-container flex items-center gap-2">
-                      <Profile radius="50px" letters={`JS`} />
-                      <h1 className="text-sm font-medium">Judy Shepherd</h1>
-                    </div>
-                  </Link>
-                  <Link to="">
-                    <div className="user-container flex items-center gap-2">
-                      <Profile radius="50px" letters={`JS`} />
-                      <h1 className="text-sm font-medium">Judy Shepherd</h1>
-                    </div>
-                  </Link>
-                  <Link to="">
-                    <div className="user-container flex items-center gap-2">
-                      <Profile radius="50px" letters={`JS`} />
-                      <h1 className="text-sm font-medium">Judy Shepherd</h1>
-                    </div>
-                  </Link>
+                  {recommendations.length == 0 ? (
+                    <h1 className="text-lg text-center text-black/30">Loading</h1>
+                  ) : (
+                    recommendations?.map((user, index) => (
+                      <Link key={index} to={`/user-details/${user.id}`}>
+                        <div className="user-container flex items-center gap-2">
+                          <Profile
+                            radius="50px"
+                            imageUrl={profilePhoto ?? null}
+                            letters={letters}
+                            hasStory={user && user.userStories.length > 0}
+                            storyBorderWidth="6px"
+                          />
+                          <h1 className="text-sm font-medium">
+                            {user.name == "" || user.surname == ""
+                              ? `${user.name} ${user.surname}`
+                              : user.userName}
+                          </h1>
+                        </div>
+                      </Link>
+                    ))
+                  )}
                 </div>
               </div>
             </div>

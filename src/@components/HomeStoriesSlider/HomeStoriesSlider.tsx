@@ -32,10 +32,15 @@ function HomeStoriesSlider() {
   }, []);
 
   return (
-    <div>
+    <div className="slider-container">
       <h1 className="text-3xl mb-1 font-bold">Stories</h1>
       {dummyData ? (
-        <TinySliderReact settings={sliderSettings}>
+        <TinySliderReact
+          settings={{
+            ...sliderSettings,
+            fixedWidth: 200,
+          }}
+        >
           {dummyData.map((data, index) => (
             <div className="slider-item-wrapper" key={data.id}>
               <div

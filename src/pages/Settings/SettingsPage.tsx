@@ -111,32 +111,6 @@ export default function SettingsPage() {
     if (user) {
       const userService: UserService = new UserService();
       if (user) {
-        await userService.update(
-          user.id,
-          {
-            ...pick(user, [
-              "name",
-              "surname",
-              "id",
-              "userName",
-              "email",
-              "roles",
-              "profilePhotoUrl",
-              "profilePhotoName",
-              "userWall",
-              "token",
-              "userPosts",
-              "userStories",
-              "notifications",
-              "friends"
-            ]),
-            profilePhoto: user.profilePhotoName,
-          },
-          {
-            bearerToken: `${state?.user?.token}`,
-            token: `${state?.user?.token}`,
-          }
-        );
         await userService
           .update(
             user.id,

@@ -38,6 +38,7 @@ function PersonDetails() {
   let storyInterval: NodeJS.Timer | null = null;
   const pauseRef = useRef<HTMLDivElement>(null);
   const userStoriesContainerRef = useRef<HTMLDivElement>(null);
+  const [profileRadius, setProfileRadius] = useState<number>(250);
 
   async function animateTimeline() {
     if (storyTimelineRef.current) {
@@ -278,6 +279,19 @@ function PersonDetails() {
     }
   }, [user]);
 
+  const handleResize = () => {
+    if (window.innerWidth < 1024) {
+      if (!isUnmounted) setProfileRadius(150);
+    } else {
+      if (!isUnmounted) setProfileRadius(250);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", () => handleResize());
+    handleResize();
+  }, []);
+
   return (
     <div className="p-5">
       {hasPopup ? <Alert /> : null}
@@ -387,33 +401,35 @@ function PersonDetails() {
             />
           </div>
           <div className="flex gap-10">
-            <Profile
-              radius="250px"
-              imageUrl={
-                profileUser.profilePhoto
-                  ? path.join(
-                      `${process.env.REACT_APP_STATIC_FILES_BASE}`,
-                      "media/profiles",
-                      `${profileUser.profilePhoto}`
-                    )
-                  : null
-              }
-              letters={letters}
-              circleClass="-translate-y-1/4 ml-10 shadow-lg z-10 cursor-pointer"
-              textClass="text-6xl"
-              defaultIconClass="text-6xl"
-              hasStory={profileUser && profileUser.userStories.length > 0}
-              onClick={handleProfileClick}
-            />
-            <h1 className="text-4xl font-black mt-5">
-              {profileUser?.name && profileUser?.surname ? (
-                `${profileUser.name} ${profileUser.surname}`
-              ) : profileUser?.userName ? (
-                profileUser.userName
-              ) : (
-                <></>
-              )}
-            </h1>
+            <div className="profile-info mt-20 flex-col lg:flex-row flex gap-10">
+              <Profile
+                radius={`${profileRadius}px`}
+                imageUrl={
+                  profileUser.profilePhoto
+                    ? path.join(
+                        `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                        "media/profiles",
+                        `${profileUser.profilePhoto}`
+                      )
+                    : null
+                }
+                letters={letters}
+                circleClass="-translate-y-1/4 ml-10 shadow-lg z-10 cursor-pointer"
+                textClass="text-6xl"
+                defaultIconClass="text-6xl"
+                hasStory={profileUser && profileUser.userStories.length > 0}
+                onClick={handleProfileClick}
+              />
+              <h1 className="text-4xl font-black lg:mt-5">
+                {profileUser?.name && profileUser?.surname ? (
+                  `${profileUser.name} ${profileUser.surname}`
+                ) : profileUser?.userName ? (
+                  profileUser.userName
+                ) : (
+                  <></>
+                )}
+              </h1>
+            </div>
           </div>
           <div className="flex flex-col">
             {posts.length > 0 ? (

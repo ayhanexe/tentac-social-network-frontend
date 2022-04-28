@@ -3,9 +3,7 @@ import Header from "../../@components/Header/Header";
 import HomeStoriesSlider from "../../@components/HomeStoriesSlider/HomeStoriesSlider";
 import HomeUserInfo from "../../@components/HomeUserInfo/HomeUserInfo";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
-import {
-  getCurrentUser,
-} from "../../utils/Utils";
+import { getCurrentUser } from "../../utils/Utils";
 
 export default function Home() {
   let unmounted = false;
@@ -29,7 +27,7 @@ export default function Home() {
   return (
     <div className="m-5 flex flex-col gap-4">
       <Header />
-      <div className="flex items-start">
+      <div className="flex lg:flex-row flex-col items-start gap-10 lg:gap-0">
         <HomeUserInfo />
         <div className="w-full flex flex-col px-3">
           <HomeStoriesSlider />
