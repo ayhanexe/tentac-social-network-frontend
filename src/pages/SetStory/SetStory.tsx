@@ -43,10 +43,10 @@ const SetStory = () => {
       });
 
       if (!unmounted) {
-        if (stories) {
-          setStories(stories);
-        }
         if (_user) {
+          if (stories) {
+            setStories(stories.filter((s: any) => s.user.id == _user.id));
+          }
           setAuthUser(_user);
         }
       }
@@ -274,7 +274,7 @@ const SetStory = () => {
                           src={path.join(
                             `${process.env.REACT_APP_STATIC_FILES_BASE}`,
                             "media/stories",
-                            `${story.image}`
+                            `${story.story.image}`
                           )}
                         />
                       </div>

@@ -58,10 +58,8 @@ function PersonDetails() {
             setHasPopup(false);
             setShowStory(false);
             timeline.current.clear();
-            timeline.current.restart();
             if (storyInterval) clearInterval(storyInterval);
           }
-          timeline.current.restart();
           slideNext();
         });
       }
@@ -75,7 +73,6 @@ function PersonDetails() {
       setHasPopup(false);
       setShowStory(true);
       timeline.current.clear();
-      timeline.current.restart();
       slideIndex = 0;
       setSlideIndex(0);
 
@@ -103,6 +100,7 @@ function PersonDetails() {
           flex: "1 1 100%",
         }}
       >
+        
         {profileUser?.profilePhoto ? (
           <a
             target="_blank"
@@ -111,7 +109,7 @@ function PersonDetails() {
               "media/profiles",
               profileUser?.profilePhoto
             )}
-            className="py-1 px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
+            className="py-1 cursor-pointer px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
           >
             See Profile Image
           </a>
@@ -214,7 +212,6 @@ function PersonDetails() {
               setHasPopup(false);
               setShowStory(false);
               timeline.current.clear();
-              timeline.current.restart();
               if (storyInterval) clearInterval(storyInterval);
             }
           });

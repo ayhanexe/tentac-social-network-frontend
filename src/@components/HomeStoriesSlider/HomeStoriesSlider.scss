@@ -2,3 +2,20 @@
   height: 270px;
 }
 
+
+.user-stories-wrapper {
+  .user-stories-container {
+    width: 30%;
+    max-height: 90%;
+    aspect-ratio: auto 1/1.5;
+    .story-timeline-container {
+      aspect-ratio: auto 10/0.1;
+    }
+    .story-carousel {
+      &,
+      * {
+        height: 100%;
+      }
+    }
+  }
+}

@@ -119,7 +119,6 @@ function ProfilePage() {
       setHasPopup(false);
       setShowStory(true);
       timeline.current.clear();
-      timeline.current.restart();
       slideIndex = 0;
       setSlideIndex(0);
 
@@ -162,7 +161,6 @@ function ProfilePage() {
       );
       if (timeline.current.then) {
         timeline.current?.then(() => {
-          timeline.current.restart();
           slideNext();
         });
       }
@@ -178,13 +176,15 @@ function ProfilePage() {
           flex: "1 1 100%",
         }}
       >
-        <a
-          target="_blank"
-          href={profilePhoto}
-          className="py-1 px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
-        >
-          See Profile Image
-        </a>
+        {profilePhoto ? (
+          <a
+            target="_blank"
+            href={profilePhoto}
+            className="py-1 px-2 text-center cursor-pointer text-white rounded-md bg-black/50 my-2 w-2/4"
+          >
+            See Profile Image
+          </a>
+        ) : null}
         <Link
           to={`/add-story/${user?.id}`}
           className="py-1 px-2 text-center text-white rounded-md bg-black/50 my-2 w-2/4"
@@ -624,7 +624,9 @@ function ProfilePage() {
 
                 <div className="items flex flex-col gap-5 mt-5">
                   {recommendations.length == 0 ? (
-                    <h1 className="text-lg text-center text-black/30">Loading</h1>
+                    <h1 className="text-lg text-center text-black/30">
+                      No data found
+                    </h1>
                   ) : (
                     recommendations?.map((user, index) => (
                       <Link key={index} to={`/user-details/${user.id}`}>
