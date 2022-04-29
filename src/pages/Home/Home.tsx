@@ -1,7 +1,11 @@
+import axios from "axios";
+import path from "path-browserify";
 import React, { useEffect, useState } from "react";
 import Header from "../../@components/Header/Header";
 import HomeStoriesSlider from "../../@components/HomeStoriesSlider/HomeStoriesSlider";
 import HomeUserInfo from "../../@components/HomeUserInfo/HomeUserInfo";
+import PostComponent from "../../@components/ReplyComponent/PostComponent";
+import PostService from "../../@tentac/services/postService/PostService";
 import { IAuthUser } from "../../@tentac/types/auth/authTypes";
 import { getCurrentUser } from "../../utils/Utils";
 
@@ -10,6 +14,44 @@ export default function Home() {
   const [user, setUser] = useState<IAuthUser>();
   const [profilePhoto, setProfilePhoto] = useState<string>();
   const [wallPhoto, setWallPhoto] = useState<string>();
+  const postService: PostService = new PostService();
+  const [posts, setPosts] = useState<any[]>([]);
+
+  const getFriends = async () => {
+    if (user) {
+      const posts = await postService.getAll({
+        bearerToken: `${user.token}`,
+      });
+
+      // console.log(posts)
+      for (const friendData of user.friends) {
+        let filteredPosts = posts.filter((p) => p.user.id == friendData.friend);
+
+        if (filteredPosts.length > 0 && !unmounted) {
+          setPosts([...posts, ...filteredPosts]);
+        }
+
+        // const friend = await axios.get(
+        //   path.join(
+        //     `${process.env.wREACT_APP_API_BASE}`,
+        //     "Users",
+        //     friendData.friend
+        //   ),
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${user.token}`,
+        //     },
+        //   }
+        // );
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      getFriends();
+    }
+  }, [user]);
 
   useEffect(() => {
     (async () => {
@@ -29,8 +71,16 @@ export default function Home() {
       <Header />
       <div className="flex lg:flex-row flex-col items-start gap-10 lg:gap-0">
         <HomeUserInfo />
-        <div className="w-full flex flex-col px-3">
-          <HomeStoriesSlider />
+        <div className="flex w-full flex-col gap-10">
+          <div className="w-full flex flex-col px-3">
+            <HomeStoriesSlider />
+          </div>
+          <div className="w-full">
+            <h1 className="text-3xl font-bold">Posts</h1>
+            {posts.map((post: any, index: number) => {
+              return <PostComponent key={index} data={post}/>;
+            })}
+          </div>
         </div>
       </div>
     </div>
