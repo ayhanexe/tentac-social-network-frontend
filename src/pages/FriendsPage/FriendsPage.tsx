@@ -17,7 +17,7 @@ const FriendsPage = () => {
     (async () => {
       const _user = await getCurrentUser();
       if (_user && !unmounted) {
-        setUser(_user);
+        console.log(_user)
         _user.friends.map(async (data: any, index: number) => {
           const friend = await userService.get(data.friend, {
             bearerToken: `${_user.token}`,
@@ -27,6 +27,7 @@ const FriendsPage = () => {
             setFriends([...friends, friend]);
           }
         });
+        setUser(_user);
       }
     })();
 
@@ -73,7 +74,9 @@ const FriendsPage = () => {
               );
             })
           ) : (
-            <h1 className="text-4xl text-center block w-full mt-10 font-bold text-black/30">There is no friend yet!</h1>
+            <h1 className="text-4xl text-center block w-full mt-10 font-bold text-black/30">
+              There is no friend yet!
+            </h1>
           )}
         </div>
       </div>

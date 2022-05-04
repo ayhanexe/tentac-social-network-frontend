@@ -1,6 +1,6 @@
 import { merge } from "lodash";
 import path from "path-browserify";
-import { memo, useEffect, useRef, useState } from "react";
+import { BaseSyntheticEvent, memo, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import TinySlider from "tiny-slider-react";
 import Header from "../../@components/Header/Header";
@@ -15,6 +15,8 @@ import gsap from "gsap";
 import { getCurrentUser, makeAssetUrl, sleep } from "../../utils/Utils";
 
 import "./PersonDetails.scss";
+import axios from "axios";
+import { AlertService } from "../../@tentac/services";
 
 function PersonDetails() {
   let isUnmounted: boolean = false;
@@ -39,6 +41,7 @@ function PersonDetails() {
   const pauseRef = useRef<HTMLDivElement>(null);
   const userStoriesContainerRef = useRef<HTMLDivElement>(null);
   const [profileRadius, setProfileRadius] = useState<number>(250);
+  const [isUnfriended, setIsUnfriended] = useState<boolean>(false);
 
   async function animateTimeline() {
     if (storyTimelineRef.current) {
@@ -100,7 +103,6 @@ function PersonDetails() {
           flex: "1 1 100%",
         }}
       >
-        
         {profileUser?.profilePhoto ? (
           <a
             target="_blank"
@@ -289,6 +291,38 @@ function PersonDetails() {
     handleResize();
   }, []);
 
+  const handleUnfriend = async (e: BaseSyntheticEvent) => {
+    e.preventDefault();
+    if (user && profileUser) {
+      await axios
+        .post(
+          path.join(
+            `${process.env.REACT_APP_API_BASE}`,
+            "users",
+            "deleteFriend"
+          ),
+          {
+            userId: `${user.id}`,
+            friendId: `${profileUser.id}`,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          }
+        )
+        .then(() => {
+          const alertService: AlertService = new AlertService();
+          alertService.Success({
+            title: "Success!",
+            text: `Unfriend successfull!`,
+          }).then(() => {
+            if(!isUnmounted) setIsUnfriended(true)
+          });
+        });
+    }
+  };
+
   return (
     <div className="p-5">
       {hasPopup ? <Alert /> : null}
@@ -417,15 +451,27 @@ function PersonDetails() {
                 hasStory={profileUser && profileUser.userStories.length > 0}
                 onClick={handleProfileClick}
               />
-              <h1 className="text-4xl font-black lg:mt-5">
-                {profileUser?.name && profileUser?.surname ? (
-                  `${profileUser.name} ${profileUser.surname}`
-                ) : profileUser?.userName ? (
-                  profileUser.userName
-                ) : (
-                  <></>
-                )}
-              </h1>
+              <div className="flex flex-col">
+                <h1 className="text-4xl font-black lg:mt-5">
+                  {profileUser?.name && profileUser?.surname ? (
+                    `${profileUser.name} ${profileUser.surname}`
+                  ) : profileUser?.userName ? (
+                    profileUser.userName
+                  ) : (
+                    <></>
+                  )}
+                </h1>
+
+                {user.friends.filter((data) => data.friend == profileUser.id)
+                  .length > 0 && !isUnfriended ? (
+                  <button
+                    onClick={async (e) => await handleUnfriend(e)}
+                    className="mt-3 bg-pink-600 py-1 px-2 rounded-md text-md text-white"
+                  >
+                    Unfriend
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
           <div className="flex flex-col">

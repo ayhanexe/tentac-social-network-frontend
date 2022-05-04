@@ -45,6 +45,8 @@ const SetStory = () => {
       if (!unmounted) {
         if (_user) {
           if (stories) {
+            console.log(stories)
+            console.log(_user)
             setStories(stories.filter((s: any) => s.user.id == _user.id));
           }
           setAuthUser(_user);

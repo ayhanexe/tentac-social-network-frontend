@@ -294,7 +294,7 @@ function ProfilePage() {
       (async () => {
         if (user) {
           if (user.name && user.surname) {
-            setLetters(`${user.name[0]}${user.name[0]}`);
+            setLetters(`${user.name[0]}${user.surname[0]}`);
           }
         }
       })();
@@ -634,12 +634,16 @@ function ProfilePage() {
                           <Profile
                             radius="50px"
                             imageUrl={profilePhoto ?? null}
-                            letters={letters}
+                            letters={
+                              user.name && user.surname
+                                ? `${user.name[0]}${user.surname[0]}`
+                                : null
+                            }
                             hasStory={user && user.userStories.length > 0}
                             storyBorderWidth="6px"
                           />
                           <h1 className="text-sm font-medium">
-                            {user.name == "" || user.surname == ""
+                            {user.name && user.surname
                               ? `${user.name} ${user.surname}`
                               : user.userName}
                           </h1>
