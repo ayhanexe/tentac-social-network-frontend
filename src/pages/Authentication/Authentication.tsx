@@ -521,7 +521,6 @@ export default function Authentication() {
             label="Email*"
             placeholder="Email"
             type="email"
-            defaultValue={"0x21106@gmail.com "}
             onChange={(e: BaseSyntheticEvent) =>
               !isUnmounted ? setRegisterEmail(e.target.value) : null
             }
@@ -531,7 +530,6 @@ export default function Authentication() {
             label="Username*"
             placeholder="Username"
             type="text"
-            defaultValue={"0x21106.jsx "}
             onChange={(e: BaseSyntheticEvent) =>
               !isUnmounted ? setRegisterUsername(e.target.value) : null
             }
@@ -543,7 +541,6 @@ export default function Authentication() {
               label="Şifrə*"
               placeholder="Şifrə"
               type="password"
-              defaultValue={"12345678 "}
               onChange={(e: BaseSyntheticEvent) =>
                 !isUnmounted ? setRegisterPassword(e.target.value) : null
               }
@@ -553,7 +550,6 @@ export default function Authentication() {
               label="Şifrə Təkrar*"
               placeholder="Şifrə Təkrar"
               type="password"
-              defaultValue={"12345678 "}
               onChange={(e: BaseSyntheticEvent) =>
                 !isUnmounted ? setRegisterPasswordAgain(e.target.value) : null
               }
@@ -565,7 +561,6 @@ export default function Authentication() {
               label="Ad"
               placeholder="Ad"
               type="text"
-              defaultValue={"Ayxan "}
               onChange={(e: BaseSyntheticEvent) =>
                 !isUnmounted ? setRegisterName(e.target.value) : null
               }
@@ -615,7 +610,6 @@ export default function Authentication() {
             id="email-or-username"
             label="Email / İstifadəçi Adı"
             placeholder="Email / İstifadəçi Adı"
-            defaultValue="admin@tentac.com "
             type="text"
             onChange={(e: BaseSyntheticEvent) =>
               !isUnmounted ? setLoginEmail(e.target.value) : null
@@ -625,7 +619,6 @@ export default function Authentication() {
             id="login-password"
             label="Şifrə"
             placeholder="Şifrə"
-            defaultValue="b911-h4rt-owd1 "
             type="password"
             onChange={(e: BaseSyntheticEvent) =>
               !isUnmounted ? setLoginPassword(e.target.value) : null

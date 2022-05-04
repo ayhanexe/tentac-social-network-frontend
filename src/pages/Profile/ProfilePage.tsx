@@ -15,7 +15,11 @@ import PostComponent from "../../@components/ReplyComponent/PostComponent";
 import { defaultPostLength } from "../../@tentac/constants/config.constants";
 import { AlertService } from "../../@tentac/services";
 import PostService from "../../@tentac/services/postService/PostService";
-import { IAuthUser, IUserInfo } from "../../@tentac/types/auth/authTypes";
+import {
+  IAuthUser,
+  IBackendUser,
+  IUserInfo,
+} from "../../@tentac/types/auth/authTypes";
 import { IPost } from "../../@tentac/types/auth/userTypes";
 import {
   getCurrentUser,
@@ -62,7 +66,7 @@ function ProfilePage() {
   const [clicking, setClicking] = useState<boolean>(false);
   const timeline = useRef(gsap.timeline({ paused: clicking }));
   const [profileRadius, setProfileRadius] = useState<number>(250);
-  const [recommendations, setRecommendations] = useState<IUserInfo[]>([]);
+  const [recommendations, setRecommendations] = useState<IBackendUser[]>([]);
   const handleResize = () => {
     if (window.innerWidth < 1024) {
       if (!isUnmounted) setProfileRadius(150);
@@ -74,7 +78,7 @@ function ProfilePage() {
   useEffect(() => {
     (async () => {
       if (user) {
-        const recommendations = await axios.get<IUserInfo[]>(
+        const recommendations = await axios.get<IBackendUser[]>(
           path.join(
             `${process.env.REACT_APP_API_BASE}`,
             "Users",
@@ -628,12 +632,20 @@ function ProfilePage() {
                       No data found
                     </h1>
                   ) : (
-                    recommendations?.map((user, index) => (
+                    recommendations?.map((user: IBackendUser, index) => (
                       <Link key={index} to={`/user-details/${user.id}`}>
                         <div className="user-container flex items-center gap-2">
                           <Profile
                             radius="50px"
-                            imageUrl={profilePhoto ?? null}
+                            imageUrl={
+                              user.profilePhoto
+                                ? `${path.join(
+                                    `${process.env.REACT_APP_STATIC_FILES_BASE}`,
+                                    "media/profiles",
+                                    `${user.profilePhoto}`
+                                  )}`
+                                : null
+                            }
                             letters={
                               user.name && user.surname
                                 ? `${user.name[0]}${user.surname[0]}`

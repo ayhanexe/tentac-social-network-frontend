@@ -109,7 +109,7 @@ function HomeStoriesSlider() {
   };
 
   const slideNext = () => {
-    if (slideIndex < (user?.userStories?.length ?? 0) - 1) {
+    if (slideIndex < (stories?.length ?? 0) - 1) {
       slideIndex += 1;
       setSlideIndex(slideIndex);
 
@@ -325,7 +325,7 @@ function HomeStoriesSlider() {
       ) : null}
       <div className="slider-container">
         <h1 className="text-3xl mb-1 font-bold">Stories</h1>
-        {user && user.userStories.length == 0 ? (
+        {user && stories.length == 0 ? (
           <TinySliderReact
             settings={{
               ...sliderSettings,

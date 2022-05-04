@@ -28,7 +28,7 @@ export default function Home() {
         let filteredPosts = posts.filter((p) => p.user.id == friendData.friend);
 
         if (filteredPosts.length > 0 && !unmounted) {
-          setPosts([...posts, ...filteredPosts]);
+          setPosts(filteredPosts);
         }
 
         // const friend = await axios.get(
@@ -71,17 +71,17 @@ export default function Home() {
       <Header />
       <div className="flex lg:flex-row flex-col items-start gap-10 lg:gap-0">
         <HomeUserInfo />
-        <div className="flex w-full flex-col gap-10">
+        <div className="w-full flex flex-col gap-10">
           <div className="w-full flex flex-col px-3">
             <HomeStoriesSlider />
           </div>
-          <div className="w-full">
-            <h1 className="text-3xl font-bold">Posts</h1>
-            {posts.map((post: any, index: number) => {
-              return <PostComponent key={index} data={post}/>;
-            })}
-          </div>
         </div>
+      </div>
+      <div className="w-full mt-10">
+        <h1 className="text-3xl font-bold">Posts</h1>
+        {posts.length == 0 ? <h1 className="text-3xl text-black/30 font-bold text-center my-10">No posts yet!</h1>:posts.map((post: any, index: number) => {
+          return <PostComponent key={index} data={post} />;
+        })}
       </div>
     </div>
   );
